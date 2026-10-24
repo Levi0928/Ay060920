@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>小猫的AJ专属赛博图鉴</title>
+<style>
+:root{
+  --bg:#000; --card:#0a0a0a; --line:#1c1c1c; --line2:#2a2a2a;
+  --mute:#555; --dim:#888; --soft:#bdbdbd; --fg:#fff;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC","Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,"JetBrains Mono",Consolas,"Noto Sans Mono CJK SC",monospace;
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:#000;color:var(--fg);font-family:var(--sans);-webkit-font-smoothing:antialiased;min-height:100%}
+body{overscroll-behavior-y:none}
+button,input,textarea{font:inherit;color:inherit;background:none;border:0;outline:0}
+button{cursor:pointer;user-select:none;-webkit-user-select:none}
+.app{max-width:480px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:calc(40px + var(--sab))}
+.mono{font-family:var(--mono);letter-spacing:.02em}
+
+/* header */
+header{padding:calc(22px + var(--sat)) 20px 6px;display:flex;align-items:flex-start;justify-content:space-between}
+.brand h1{font-size:19px;font-weight:600;letter-spacing:.04em}
+.brand h1{display:flex;align-items:center;gap:9px}
+.brand h1 .cat{flex:none;width:30px;height:22px;color:#fff;overflow:visible}
+.brand p{margin-top:6px;font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.08em}
+.brand p b{color:var(--soft);font-weight:500}
+.icon-btn{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:var(--dim);transition:color .2s,background .2s}
+.icon-btn:active{background:#111;color:#fff}
+.icon-btn svg{width:20px;height:20px}
+
+/* tabs */
+.nav{position:sticky;top:0;z-index:10;background:linear-gradient(#000 80%,rgba(0,0,0,0));display:flex;align-items:center;padding:10px 0 12px}
+.tabs{flex:1;display:flex;gap:22px;overflow-x:auto;scrollbar-width:none;padding:0 20px;scroll-behavior:smooth;mask-image:linear-gradient(90deg,#000 88%,transparent)}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;font-size:16px;font-weight:500;color:#666;padding:6px 0;position:relative;transition:color .25s var(--ease);letter-spacing:.03em;white-space:nowrap}
+.tab.on{color:#fff;font-weight:700}
+.tab::after{content:"";position:absolute;left:50%;bottom:0;width:0;height:2px;background:#fff;border-radius:2px;transition:width .3s var(--ease),left .3s var(--ease)}
+.tab.on::after{width:0}
+.tab .n{font-family:var(--mono);font-size:10px;font-weight:400;margin-left:3px;vertical-align:top;color:inherit;opacity:.6}
+.add-series{flex:none;width:40px;height:34px;margin:0 10px 0 2px;display:grid;place-items:center;color:var(--soft);transition:transform .15s,border-color .2s}
+.add-series:active{transform:scale(.86)}
+.add-series svg{width:16px;height:16px;color:#fff}
+
+/* hall meta */
+.hall{padding:2px 20px 14px;display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.06em}
+.bar{flex:1;height:1px;background:var(--line);margin:0 12px;position:relative;align-self:center}
+.bar i{position:absolute;left:0;top:0;height:1px;background:#fff;transition:width .6s var(--ease)}
+
+/* grid */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 16px}
+@media (min-width:440px){.grid{grid-template-columns:repeat(3,1fr)}}
+.card{position:relative;aspect-ratio:1/1;border-radius:14px;overflow:hidden;background:#1c1c1e;transition:transform .18s var(--ease);cursor:pointer;user-select:none;-webkit-user-select:none;animation:fadeUp .5s var(--ease) both}
+.card:active,.card.press{transform:scale(.955)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.sil{position:absolute;inset:0;display:grid;place-items:center}
+.sil svg{width:42%;height:42%;color:#2a2a2c;shape-rendering:geometricPrecision}
+.sil.has-off svg{position:absolute;top:11px;left:11px;width:15px;height:14px;color:#2c2c2e}
+.offimg{position:absolute;left:9%;right:9%;top:16%;bottom:26%;display:grid;place-items:center}
+.offimg img{max-width:100%;max-height:100%;object-fit:contain;filter:grayscale(1) brightness(1.05) contrast(.95);opacity:.3;-webkit-user-drag:none;pointer-events:none}
+.frame .tgt img{width:74%;max-height:60%;object-fit:contain;filter:grayscale(1);opacity:.35;transition:filter .6s var(--ease),opacity .6s var(--ease)}
+.frame.done .tgt img{filter:none;opacity:1}
+.card .tag{position:absolute;left:12px;right:12px;bottom:11px;z-index:3}
+.card .tag .nm{font-size:13px;font-weight:600;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .tag .dt{font-family:var(--mono);font-size:10px;margin-top:3px;letter-spacing:.06em}
+.card.unlit .tag .nm{color:#6a6a6e;font-size:11px;font-weight:500}
+.card.unlit .tag .dt{display:none}
+.card .corner{position:absolute;top:10px;right:10px;font-family:var(--mono);font-size:9px;color:#3a3a3d;letter-spacing:.1em;z-index:3}
+.ph{position:absolute;inset:0;z-index:1}
+.ph img{width:100%;height:100%;object-fit:cover;display:block;transition:filter .6s var(--ease)}
+.grad{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(0,0,0,.55) 72%,rgba(0,0,0,.92) 100%)}
+.card.lit .tag .nm{color:#fff}
+.card.lit .tag .dt{color:rgba(255,255,255,.62)}
+.card.sailed .ph img{filter:grayscale(1) contrast(1.05) brightness(.8)}
+.card .mini-stamp{position:absolute;top:8px;right:8px;width:44px;height:44px;z-index:3;transform:rotate(-14deg);opacity:.9}
+/* light-up B 显影: initial state here, motion driven by revealB() (Web Animations) */
+.card.reveal,.grid.calm .card{animation:none}
+.card.reveal>.sil{visibility:hidden}
+.card.reveal .ph,.card.reveal .grad,.card.reveal .tag{opacity:0}
+.card .ghost{position:absolute;inset:0;z-index:4;pointer-events:none}
+.card .ghost .uname{position:absolute;left:12px;right:12px;bottom:11px;font-size:11px;font-weight:500;line-height:1.3;color:#6a6a6e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@keyframes tagIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card.new{border:1px dashed #2a2a2c;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#5a5a5a}
+.card.new svg{width:22px;height:22px}
+.card.new span{font-size:13px;letter-spacing:.08em}
+.empty-hint{grid-column:1/-1;text-align:center;color:#444;font-size:12px;padding:22px 0 0;line-height:1.9}
+.first{padding:120px 30px 0;text-align:center}
+.first svg{width:96px;height:90px;color:#1f1f21}
+.first h3{margin-top:22px;font-size:15px;font-weight:500;color:#bbb;letter-spacing:.06em}
+.first p{margin-top:10px;font-size:12px;color:#555;line-height:1.9}
+.first .mono{margin-top:26px;font-size:10px;color:#2c2c2c;letter-spacing:.2em}
+.foot{text-align:center;color:#262626;font-family:var(--mono);font-size:10px;letter-spacing:.2em;margin-top:34px}
+
+/* layers */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .3s var(--ease);z-index:40}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:50%;bottom:0;width:100%;max-width:480px;transform:translate(-50%,104%);background:#000;border:1px solid #1c1c1e;border-bottom:0;border-radius:22px 22px 0 0;z-index:41;transition:transform .42s var(--ease);padding:10px 20px calc(22px + var(--sab));max-height:92vh;overflow-y:auto}
+.sheet.on{transform:translate(-50%,0)}
+.grab{width:36px;height:4px;border-radius:4px;background:#2a2a2a;margin:0 auto 18px}
+.sheet h2{font-size:18px;font-weight:600;letter-spacing:.04em}
+.sheet .sub{margin-top:6px;color:var(--mute);font-size:12px;line-height:1.6}
+.label{display:block;font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.1em;margin:20px 0 8px}
+.field{width:100%;background:#0e0e0f;border:1px solid #1c1c1e;border-radius:12px;padding:13px 14px;font-size:15px;transition:border-color .2s;color-scheme:dark}
+.field:focus{border-color:#555}
+.field::placeholder{color:#3c3c3c}
+textarea.field{min-height:100px;resize:none;line-height:1.7}
+.count{text-align:right;font-family:var(--mono);font-size:10px;color:#3a3a3a;margin-top:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{padding:9px 14px;border-radius:999px;border:1px solid #242424;font-size:13px;font-weight:600;color:var(--soft);transition:all .2s var(--ease);font-family:var(--mono)}
+.chip.on{background:#fff;color:#000;border-color:#fff}
+.chip:disabled{color:#2e2e2e;border-color:#151515;cursor:default}
+.btn{width:100%;margin-top:22px;height:50px;border-radius:14px;background:#fff;color:#000;font-size:15px;font-weight:600;letter-spacing:.12em;transition:transform .15s,opacity .2s}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.25}
+.btn.ghost{background:transparent;color:var(--dim);border:1px solid #222;margin-top:10px}
+.btn.danger{background:transparent;color:#fff;border:1px solid #333}
+.mod{display:flex;align-items:center;gap:14px;margin-top:18px}
+.pick{flex:none;width:92px;height:92px;border-radius:14px;border:1px dashed #333;display:grid;place-items:center;overflow:hidden;background:#0e0e0f;color:#666;position:relative}
+.pick img{width:100%;height:100%;object-fit:cover;display:block}
+.pick svg{width:22px;height:22px}
+.mod .txt b{display:block;font-size:14px;font-weight:600;color:#eee}
+.mod .txt span{display:block;margin-top:5px;font-size:12px;color:#555;line-height:1.6}
+.stepn{font-family:var(--mono);color:#444;margin-right:6px}
+.sheet .label{margin-top:16px}
+.preview{position:relative;margin-top:18px;border-radius:14px;overflow:hidden;aspect-ratio:16/9;background:#111}
+.preview img{width:100%;height:100%;object-fit:cover;display:block}
+.preview .swap{position:absolute;right:10px;bottom:10px;padding:7px 12px;border-radius:999px;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);font-size:12px;border:1px solid rgba(255,255,255,.15)}
+.row2{display:flex;gap:10px}
+.row2 .btn{margin-top:22px}
+.menu{margin-top:8px}
+.menu button{width:100%;display:flex;justify-content:space-between;align-items:center;padding:16px 2px;border-bottom:1px solid #161616;font-size:15px;color:#ddd;text-align:left}
+.menu button span{font-family:var(--mono);font-size:11px;color:var(--mute)}
+.menu button:active{color:#fff}
+.menu button.warn{color:#9a9a9a}
+.note{margin-top:18px;font-size:11px;color:#3e3e3e;line-height:1.8;font-family:var(--mono)}
+
+/* detail */
+.detail{position:fixed;inset:0;z-index:30;background:#000;overflow-y:auto;opacity:0;pointer-events:none;transform:translateY(24px);transition:opacity .35s var(--ease),transform .4s var(--ease)}
+.detail.on{opacity:1;pointer-events:auto;transform:none}
+.dwrap{max-width:480px;margin:0 auto;padding-bottom:calc(30px + var(--sab))}
+.dtop{position:absolute;top:0;left:0;right:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:calc(12px + var(--sat)) 12px 10px}
+.dtop .icon-btn{background:rgba(0,0,0,.4);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff}
+.dwrap{position:relative}
+.dtop .crumb{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.6);letter-spacing:.14em;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,.35);backdrop-filter:blur(10px)}
+.dphoto{position:relative;width:100%;height:min(68vh,600px);overflow:hidden;background:#0a0a0a}
+.dphoto::after{content:"";position:absolute;left:0;right:0;bottom:0;height:45%;background:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,.6) 55%,#000);pointer-events:none}
+.dphoto .ov{position:absolute;left:22px;right:22px;bottom:18px;z-index:2}
+.dphoto img{width:100%;height:100%;object-fit:cover;display:block;transition:filter .8s var(--ease)}
+.dphoto.sailed img{filter:grayscale(1) contrast(1.08) brightness(.78)}
+.stamp{position:absolute;right:18px;top:calc(64px + var(--sat));z-index:3;width:128px;height:128px;opacity:0;transform:rotate(-14deg) scale(1.25);transition:opacity .35s var(--ease),transform .45s cubic-bezier(.3,1.4,.5,1);pointer-events:none;mix-blend-mode:screen}
+.dphoto.sailed .stamp{opacity:.92;transform:rotate(-14deg) scale(1)}
+.dbody{padding:14px 22px 0}
+.dname{font-size:28px;font-weight:700;letter-spacing:.02em;line-height:1.25}
+.dmeta{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px 16px;font-family:var(--mono);font-size:12px;color:var(--dim);letter-spacing:.05em}
+.dmeta b{color:#fff;font-weight:500}
+.dsec{margin-top:24px}
+.dsec .label{margin:0 0 10px}
+.memory{font-size:14px;line-height:2;color:#8e8e93;white-space:pre-wrap;word-break:break-word}
+.memory.empty{color:#3a3a3a}
+.seg{position:relative;display:grid;grid-template-columns:1fr 1fr;background:#0d0d0d;border:1px solid #1c1c1c;border-radius:14px;padding:4px}
+.seg i{position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:10px;background:#fff;transition:transform .35s var(--ease)}
+.seg.r i{transform:translateX(100%)}
+.seg button{position:relative;z-index:1;height:40px;font-size:14px;font-weight:600;color:#666;transition:color .3s;letter-spacing:.1em}
+.seg button.on{color:#000}
+.seg-note{margin-top:10px;font-size:12px;color:#444;line-height:1.7}
+.dact{display:flex;justify-content:center;gap:28px;margin-top:30px}
+.dact button{font-size:13px;color:#666;letter-spacing:.14em;padding:8px}
+.dact button:active{color:#fff}
+
+/* scan */
+.scan{position:fixed;inset:0;z-index:50;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s var(--ease)}
+.scan.on{opacity:1;pointer-events:auto}
+.scan:not(.on) *{pointer-events:none!important}
+.scan .wrap{width:100%;max-width:480px;padding:0 28px;display:flex;flex-direction:column;align-items:stretch}
+.scan .hd{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.14em;margin-bottom:16px}
+.scan .hd b{color:#fff;font-weight:500}
+.frame{position:relative;aspect-ratio:1/1;width:100%;border-radius:4px;overflow:hidden;background:
+  linear-gradient(#000,#000) padding-box}
+.frame .gridbg{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:24px 24px;background-position:center;animation:gridIn .6s var(--ease) both}
+@keyframes gridIn{from{opacity:0;transform:scale(1.06)}to{opacity:1;transform:none}}
+.frame .cn{position:absolute;width:22px;height:22px;border-color:#fff;border-style:solid;border-width:0}
+.cn.a{left:0;top:0;border-left-width:2px;border-top-width:2px}
+.cn.b{right:0;top:0;border-right-width:2px;border-top-width:2px}
+.cn.c{left:0;bottom:0;border-left-width:2px;border-bottom-width:2px}
+.cn.d{right:0;bottom:0;border-right-width:2px;border-bottom-width:2px}
+.frame .tgt{position:absolute;inset:0;display:grid;place-items:center}
+.frame .tgt svg{width:52%;height:52%;color:#3a3a3a;transition:color .4s}
+.frame.done .tgt svg{color:#fff}
+.frame .line{position:absolute;left:0;right:0;height:2px;background:#fff;box-shadow:0 0 18px 2px rgba(255,255,255,.55);top:0;opacity:.9}
+.frame .line::after{content:"";position:absolute;left:0;right:0;bottom:2px;height:70px;background:linear-gradient(rgba(255,255,255,0),rgba(255,255,255,.08))}
+.frame.run .line{animation:scanY 1s cubic-bezier(.45,0,.55,1) 2 alternate both}
+.frame.done .line{opacity:0;transition:opacity .2s}
+@keyframes scanY{from{top:0}to{top:calc(100% - 2px)}}
+.frame .pts{position:absolute;inset:0}
+.frame .pts span{position:absolute;width:5px;height:5px;margin:-2.5px;border:1px solid #fff;opacity:0;transition:opacity .2s}
+.frame .pts span.on{opacity:.8}
+.frame .box{position:absolute;left:20%;top:20%;right:20%;bottom:20%;border:1px solid rgba(255,255,255,.0);transition:all .4s var(--ease)}
+.frame.done .box{left:16%;top:16%;right:16%;bottom:16%;border-color:rgba(255,255,255,.5)}
+.log{margin-top:18px;height:118px;font-family:var(--mono);font-size:11.5px;line-height:1.75;color:#5c5c5c;overflow:hidden}
+.log div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.log div.ok{color:#cfcfcf}
+.prog{margin-top:8px;display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:11px;color:#fff}
+.prog .t{flex:1;height:2px;background:#1a1a1a;position:relative;overflow:hidden}
+.prog .t i{position:absolute;left:0;top:0;bottom:0;width:0;background:#fff}
+.result{margin-top:20px;opacity:0;transform:translateY(8px);transition:all .4s var(--ease);pointer-events:none}
+.result.on{opacity:1;transform:none;pointer-events:auto}
+.result .k{font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.14em}
+.result .v{font-size:24px;font-weight:700;margin-top:6px;letter-spacing:.02em}
+.result .btn{margin-top:20px}
+
+/* dialog + toast */
+.dialog{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:rgba(0,0,0,.7);opacity:0;pointer-events:none;transition:opacity .25s}
+.dialog.on{opacity:1;pointer-events:auto}
+.dialog .box{width:calc(100% - 64px);max-width:320px;background:#0d0d0d;border:1px solid #1e1e1e;border-radius:18px;padding:24px 20px 16px;transform:scale(.96);transition:transform .3s var(--ease)}
+.dialog.on .box{transform:none}
+.dialog h3{font-size:16px;font-weight:600}
+.dialog p{margin-top:8px;font-size:13px;color:#777;line-height:1.7}
+.dialog .row2 .btn{height:44px;margin-top:20px;font-size:14px;letter-spacing:.08em}
+.toast{position:fixed;left:50%;bottom:calc(34px + var(--sab));transform:translate(-50%,16px);background:#fff;color:#000;padding:10px 16px;border-radius:999px;font-size:13px;font-weight:500;z-index:70;opacity:0;transition:all .35s var(--ease);pointer-events:none;max-width:calc(100% - 40px);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.hidden{display:none!important}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.auth{position:fixed;inset:0;z-index:60;background:#000;display:flex;justify-content:center;overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .35s var(--ease)}
+.auth.on{opacity:1;pointer-events:auto}
+.au-x{position:absolute;top:calc(14px + var(--sat));right:14px;color:#555}
+.au-in{width:100%;max-width:420px;padding:calc(96px + var(--sat)) 28px calc(28px + var(--sab));display:flex;flex-direction:column}
+.au-cat{width:58px;height:43px;color:#fff;overflow:visible}
+.au-k{margin-top:22px;font-size:10px;color:#3a3a3d;letter-spacing:.24em}
+.auth h2{margin-top:10px;font-size:24px;font-weight:600;letter-spacing:.04em}
+.au-sub{margin-top:10px;font-size:13px;line-height:1.75;color:var(--mute)}
+.au-sub b{color:var(--soft);font-weight:400;font-size:13px}
+.auth .label{margin-top:30px}
+.au-link{display:block;margin:18px auto 0;font-size:12px;color:#555;letter-spacing:.04em;padding:6px}
+.au-link:disabled{color:#333}
+.au-row{display:flex;justify-content:space-between}
+.au-row .au-link{margin:16px 0 0}
+.otp{position:relative;display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.otp i{height:54px;border-radius:12px;background:#0e0e0f;border:1px solid #1c1c1e;display:grid;place-items:center;font-style:normal;font-family:var(--mono);font-size:22px;color:#fff;transition:border-color .2s}
+.otp i.fill{border-color:#2c2c2e}
+.otp i.cur{border-color:#fff}
+.otp input{position:absolute;inset:0;opacity:0;width:100%;height:100%;font-size:16px;color:transparent;caret-color:transparent;background:transparent;border:0}
+.au-foot{margin-top:auto;padding-top:48px;font-size:10px;line-height:1.9;color:#2e2e30;letter-spacing:.12em;text-align:center}
+.sync-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#333;margin-right:6px;vertical-align:1px}
+.sync-dot.ok{background:#fff}
+.sync-dot.busy{background:#888;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.3}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- Jumpman 标志，矢量来源：https://en.wikipedia.org/wiki/File:Jumpman_logo.svg -->
+    <symbol id="leaper" viewBox="5 13.06 240 223.88"><path fill="currentColor" d="M135.377,28.32c-0.092-0.488-0.155-0.993-0.189-1.504c-0.493-7.083,4.839-13.225,11.922-13.724 c7.089-0.494,13.23,4.845,13.724,11.928c0.494,7.083-4.839,13.225-11.921,13.724c-0.448,0.034-0.891,0.04-1.326,0.023 c-0.287,0.074-0.459,0.109-0.706,0.327c-0.729,1.136,1.854,0.924,0.098,5.889c0,0-0.012,0.545-0.207,1.09 c-0.138,1.906-0.872,7.554-0.976,10.562c0.373,0.436,0.477,0.648,0.437,1.705c-0.167,1.429-0.494,4.931-1.022,7.175 c-0.447,1.923-1.233,2.29-1.865,2.761c-0.89,3.984-1.125,7.284-3.409,12.123c-0.207,3.668-0.465,4.667-1.234,6.458 c-0.086,5.401,0.287,6.205-3.357,14.757c-0.941,4-0.046,6.767,0.947,10.923c1.016,4.271,3.834,6.056,4.253,10.43 c0.987,10.3,0.74,17.314-1.47,25.39l1.929,4.569c2.394,1.097,8.334,4.099,5.04,8.851c4.638,2.439,11.646,5.028,17.426,9.971 c2.325,1.935,4.781,4.047,6.985,6.526c4.196,0.654,3.748,0.987,6.859,2.898c9.144,5.607,23.809,16.731,32.31,24.606 c1.464,0.855,2.061,1.47,3.243,2.09c0.184,0.355,0.235,0.436,0.195,0.533c-0.407,1.028-0.391,1.057-0.758,1.877 c0.459,0.506,1.314,0.981,1.825,1.424c0.477,0.149,0.477-0.08,1.298-0.281c1.067,0.999,2.388,1.803,2.863,1.757 c1.447-0.368,1.2-0.069,2.423-1.436c0.441-0.453,1.177,0.006,1.177,0.006c0.459-0.539,1.446-1.613,2.761-2.388 c1.05-0.62,3.054-0.688,3.054-0.688c0.671,0.006,0.545,0.694,0.487,0.918c-0.757,0.391-2.364,0.821-3.266,1.486 c-1.963,2.032-3.501,4.771-3.501,4.771c3.954-0.54,6.383,0.441,9.677,0.063c1.797-0.103,3.123,0.012,5.011-1.354 c0,0,1.814-1.291,3.438-1.975c1.579-0.688,3.077-0.321,4.466,0.689c0.981,1.107,1.572,1.113,0.08,2.675 c-0.539,0.608-1.32,1.285-2.313,2.267c-1.745,1.723-4.093,4.023-6.526,5.924c-2.463,1.923-5.258,3.65-7.003,4.442 c-4.402,3.163-3.363,2.336-6.824,5.471c-0.437,0.39-1.596,1.09-2.158,1.463c-1.366,0.896-1.791,0.149-2.681-1.492 c0,0-0.408-0.614-1.079-1.923c-0.735-1.429-1.286-3.064-1.063-3.036c-0.82-0.104-4.512-4.432-4.522-5.361 c-0.781-0.178-4.11-3.403-4.23-4.018l-2.95-2.365c-3.375,0.7-4.15-1.395-13.064-7.72c-1.016-0.018-2.588-0.568-4.839-2.238 c-4.023-3.221-13.672-10.51-15.308-11.343c-1.757-0.895-3.857-1.738-5.144-2.801c-1.928-0.355-2.984-0.557-3.948-0.826 c-0.987-0.27-1.883-0.62-4.38-0.953c-4.063-0.505-8.277-2.187-12.289-4.195c-1.899-0.901-3.553-1.36-5.188-2.062 c-3.668-1.549-6.813-2.944-9.25-3.507c-0.93-0.092-5.35-1.418-7.668-2.772c-0.804-0.413-1.269-0.809-1.797-0.93 c-1.217-0.281-1.998,0.201-2.548,0.385c-2.973,1.55-5.757,2.887-8.329,4.271c-2.394,1.28-4.598,2.611-6.934,3.955 c-2.107,1.217-4.541,2.364-7.043,3.559c0,0-7.135,3.576-11.032,4.965c-3.381,2.761-10.292,7.536-14.51,9.901 c-2.089,0.993-6.147,3.564-8.019,4.139c-1.068,0.86-4.873,3.575-7.852,5.814c-2.302,1.722-4.041,3.174-4.041,3.174 c-1.337,1.199-1.246,1.768-3.788,0.688c-0.706,0.58-1.251,0.941-1.705,1.274c-1.836,1.332-1.992,1.011-2.663,0.976 c-1.28,1.108-1.441,0.534-2.56,1.809c-0.735,1.137,0.017,0.866-1.533,1.418c-0.327,0.126-0.482,0.521-0.734,0.74 c-1.246,1.027-1.251,3.926-4.236,4.133c-1.728,1.233-1.286,2.721-2.606,2.657c0.081,1.28-2.336,3.146-2.772,3.14 c-3.806,1.314-4.07-1.486-8.639,0.603c-0.591,0.27-1.458,1.017-2.6,1.234c-2.009,0.379-4.437-0.018-5.918-1.165 c-2.331-1.797-4.477-5.264-4.477-5.264c-0.741-1.751-0.31-2.858,2.003-4.512c0.964-0.614,1.142-1.073,2.761-1.183 c0.804-0.304,0.585,0.161,2.021-0.355c0.832-0.299,0.832-0.086,2.508-0.229c0.384-0.259,0.924-0.351,1.647-0.586 c1.326-0.436,2.618-0.924,2.618-0.924s0.338-0.339,1.613-0.218c1.079-0.442,2.187-1.097,2.755-1.298 c-0.144-1.71,0.04-1.63,0.832-2.318c0.987-0.85,1.165-0.712,1.9-0.184c0.31-0.179,0.459-0.241,0.425-0.5 c-0.121-0.89-0.884-1.309-0.654-3.271c-0.339-0.786-0.838-1.756-0.729-2.342c0.161-0.632,0.316-0.936,0.7-1.137 c0.408-0.218,0.54,0.075,0.758,0.321c0.39,0.454,0.706,1.797,0.706,1.797c0.138,1.516,0.608,3.479,2.106,2.371 c0.884-0.896,1.056-3.283,2.858-2.772l1.286,1.119c1.091-1.027,1.143-1.027,1.797-1.44c0,0-1.022-1.033-0.126-1.837 c0.614-0.546,1.354-0.936,2.669-2.394c3.61-3.989,5.464-5.752,9.368-8.966c7.789-6.406,16.651-10.9,22.282-13.133 c1.836-2.331,3.622-3.88,7.697-4.271c4.844-8.18,14.12-15.486,16.25-16.651c1.733-3.14,2.485-2.807,4.752-3.438 c1.796-1.44,2.204-1.44,3.008-2.944c0.781-3.105-1.802-11.399,4.792-11.818c1.401-1.98,1.051-1.504,2.612-3.375 c-1.056-2.606-1.492-4.787-1.779-6.664c-0.052-0.218-2.617-2.026-1.889-4.386c-1.09-1.297-3.128-4.324-3.765-5.742 c-0.292,0.006-0.534-0.104-0.855-0.149c-0.333-0.052-0.747-0.034-1.211-0.074c-1.027,2.651-2.146,2.847-3.972,3.432 c-3.26,6.948-4.408,9.888-13.632,15.633c-3.662,4.099-4.833,8.667-4.816,8.599c-0.631,1.354-0.408,3.249-0.075,4.265 c-0.482,1.504-0.356,1.653-0.356,1.653c0.201,0.568,0.724,1.32,1.366,1.48c1.108,0.293,2.216,0.247,2.152,1.481 c-0.149,1.544-2.175,1.291-3.134,1.119c-3.691-0.586-2.525-2.991-4.885-2.188c-1.808,1.183-2.485,4.673-5.436,4.219 c-0.39-0.258-0.27-1.021-0.006-1.572c0.414-0.861,1.148-1.573,0.712-1.895c-1.917,0.603-5.763,1.877-5.763,1.877 c-1.808,0.494-3.789-0.407-2.009-1.596c0.827-0.321,2.009-0.723,3.467-1.658c0,0,0.751-1.022-0.689-0.511 c-1.573,0.563-3.892,0.912-5.556,0.729c0,0-3.45-0.453-3.892-0.724c-0.448-0.27-0.855-1.337,0.224-1.331 c1.366,0.012,4.787-0.391,7.439-1.097c1.28-0.499,3.714-1.939,5.08-2.617c0,0,1.481-2.158,2.296-2.583 c1.36-1.567,2.508-2.491,3.713-4.093c1.177-2.428,2.394-6.273,6.291-12.226c1.802-2.744,4.041-5.94,6.859-8.797 c0,0,0.729-4.574,4.397-7.829c0.81-1.906,2.038-4.15,3.249-6.228c0.471-0.798,0.918-1.492,1.366-2.25 c1.137-1.785,2.331-5.108,6.762-5.631c0,0,1.894-1.4,2.623-2.394c1.137-0.97,0.878-2.479,1.802-3.542 c-1.412-1.377-5.022-3.966-5.373-7.565c-0.373-3.817,0.987-6.957,3.295-9.281c2.56-2.56,5.258-3.84,8.535-3.645 c4.092,0.608,4.867,1.963,6.17,3.306c1.251,1.274,1.716,0.454,2.244,1.946c3.433,0.913,3.243,0.511,3.214,3.037 c0.528,0.711,1.412,1.372,1.4,2.847c1.154-2.394,1.383-2.835,4.466-5.47c0.729-2.141,1.223-4.247,1.865-6.388 c0.6-1.98,1.347-4.018,1.926-5.551c-0.614-4.328,0.648-5.045,2.33-8.839c-0.298-0.522-0.234-0.671-0.108-1.527 c0.654-2.508,1.676-5.826,2.284-7.99c0,0,0.201-0.861,1.091-0.924c0.769-2.738,1.923-7.835,2.118-8.874 c0.792-2.864,0.281-3.783-0.327-5.396c-0.195-0.528-0.104-1.28-0.442-1.866c-0.958-1.67-1.991-3.84-2.691-5.39 c-0.454-0.987-1.172-4.707-1.172-4.707C134.843,26.42,135.377,28.32,135.377,28.32"/></symbol>
+    <symbol id="stampSym" viewBox="0 0 140 140">
+      <g fill="none" stroke="#fff">
+        <circle cx="70" cy="70" r="58" stroke-width="3"/>
+        <circle cx="70" cy="70" r="49" stroke-width="1.2"/>
+      </g>
+      <path id="arcTop" d="M 28 70 A 42 42 0 0 1 112 70" fill="none"/>
+      <path id="arcBot" d="M 26 74 A 44 44 0 0 0 114 74" fill="none"/>
+      <text font-family="ui-monospace,Menlo,monospace" font-size="8.5" fill="#fff" letter-spacing="2.6"><textPath href="#arcTop" startOffset="50%" text-anchor="middle">小猫的赛博鞋柜</textPath></text>
+      <text font-family="ui-monospace,Menlo,monospace" font-size="7.5" fill="#fff" letter-spacing="3"><textPath href="#arcBot" startOffset="50%" text-anchor="middle">回忆永久保存</textPath></text>
+      <line x1="30" y1="58" x2="110" y2="58" stroke="#fff" stroke-width="1"/>
+      <line x1="30" y1="86" x2="110" y2="86" stroke="#fff" stroke-width="1"/>
+      <text x="70" y="77" text-anchor="middle" font-size="19" font-weight="700" fill="#fff" letter-spacing="3" font-family="-apple-system,'PingFang SC','Noto Sans CJK SC',sans-serif">已远航</text>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="app" id="app">
+  <header>
+    <div class="brand">
+      <h1><svg class="cat" viewBox="8.5 22 48 35" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"><path vector-effect="non-scaling-stroke" d="M15.6 47.6 Q11 46 11.6 40.6 L12.4 34 L10.6 27 L16 30.2 Q18.4 29 21 29.4 L24.6 25.4 L24.6 30.6 Q33 23.6 43 25.6 Q53.6 28 54 39 Q54.2 47.6 44 48.6 L20 48.6"/><path vector-effect="non-scaling-stroke" d="M52.6 44.6 Q51.6 54.4 36 54.6 Q26.4 54.6 22.8 51.2"/><path vector-effect="non-scaling-stroke" d="M14.8 38.2 Q16.6 39.8 18.6 38.4"/></g></svg><span>小猫的AJ专属赛博图鉴</span></h1>
+      <p id="stat">已点亮 <b>0</b> / 0</p>
+    </div>
+    <button class="icon-btn" id="btnMenu" aria-label="设置">
+      <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+    </button>
+  </header>
+  <div class="nav">
+    <div class="tabs" id="tabs"></div>
+    <button class="add-series" id="btnAddSeries" aria-label="添加系列">
+      <svg viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
+    </button>
+  </div>
+  <div class="hall" id="hall"></div>
+  <div class="grid" id="grid"></div>
+  <div class="foot">只要点亮 · 永不褪色</div>
+</div>
+
+<!-- detail -->
+<div class="detail" id="detail"><div class="dwrap" id="dwrap"></div></div>
+
+<!-- sheet -->
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet"><div class="grab"></div><div id="sheetBody"></div></div>
+
+<!-- scan -->
+<div class="scan" id="scan">
+  <div class="wrap">
+    <div class="hd"><span>AI 视觉特征扫描</span><b id="scanId">#000</b></div>
+    <div class="frame" id="frame">
+      <div class="gridbg"></div>
+      <div class="box"></div>
+      <div class="tgt"><svg><use href="#leaper"/></svg></div>
+      <div class="pts" id="pts"></div>
+      <div class="line"></div>
+      <i class="cn a"></i><i class="cn b"></i><i class="cn c"></i><i class="cn d"></i>
+    </div>
+    <div class="prog"><div class="t"><i id="progBar"></i></div><span id="progTxt">000%</span></div>
+    <div class="log" id="log"></div>
+    <div class="result" id="result">
+      <div class="k">识别完成 · 请确认鞋款</div>
+      <div class="v" id="resName"></div>
+      <button class="btn" id="btnUpload">确认鞋款，开始点亮</button>
+      <button class="btn ghost" id="btnScanCancel">稍后再点亮</button>
+    </div>
+  </div>
+</div>
+
+<div class="dialog" id="dialog"><div class="box"><h3 id="dlgT"></h3><p id="dlgP"></p><div class="row2"><button class="btn ghost" id="dlgNo">取消</button><button class="btn" id="dlgYes">确定</button></div></div></div>
+<div class="toast" id="toast"></div>
+<input type="file" id="filePhoto" accept="image/*" class="hidden">
+<input type="file" id="fileImport" accept="application/json,.json" class="hidden">
+
+<section class="auth" id="auth" aria-label="登录">
+  <button class="icon-btn au-x" id="auClose" aria-label="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+  <div class="au-in">
+    <svg class="au-cat" viewBox="8.5 22 48 35" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"><path vector-effect="non-scaling-stroke" d="M15.6 47.6 Q11 46 11.6 40.6 L12.4 34 L10.6 27 L16 30.2 Q18.4 29 21 29.4 L24.6 25.4 L24.6 30.6 Q33 23.6 43 25.6 Q53.6 28 54 39 Q54.2 47.6 44 48.6 L20 48.6"/><path vector-effect="non-scaling-stroke" d="M52.6 44.6 Q51.6 54.4 36 54.6 Q26.4 54.6 22.8 51.2"/><path vector-effect="non-scaling-stroke" d="M14.8 38.2 Q16.6 39.8 18.6 38.4"/></g></svg>
+    <div class="au-k mono">CYBER DEX · CLOUD</div>
+    <div id="auS1">
+      <h2>登录小猫的图鉴</h2>
+      <p class="au-sub">用邮箱收一个 6 位验证码就能登录，不用设密码<br>换手机也能找回整个鞋柜和每一段回忆</p>
+      <label class="label">邮箱</label>
+      <input class="field" id="auEmail" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com">
+      <button class="btn" id="auSend">发送验证码</button>
+      <button class="au-link" id="auSkip">先不登录，只保存在这台设备</button>
+    </div>
+    <div id="auS2" hidden>
+      <h2>输入验证码</h2>
+      <p class="au-sub">6 位验证码已发送到<br><b id="auMail" class="mono"></b></p>
+      <label class="label">验证码</label>
+      <div class="otp" role="group" aria-label="6 位验证码"><i></i><i></i><i></i><i></i><i></i><i></i>
+        <input id="auCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-label="验证码"></div>
+      <button class="btn" id="auVerify" disabled>登录</button>
+      <div class="au-row"><button class="au-link" id="auBack">换个邮箱</button><button class="au-link" id="auResend">重新发送</button></div>
+    </div>
+    <p class="au-foot mono">本机数据会在首次登录后自动上传<br>只有你自己能看到</p>
+  </div>
+</section>
+
+<script>
+/* ---------- 云同步配置：两项都留空时，图鉴完全离线运行 ---------- */
+const SUPABASE_URL = 'https://dpjwsocqxhmxuputhqrl.supabase.co';        // 例如 'https://xxxx.supabase.co'，见 supabase/README.md
+const SUPABASE_ANON_KEY = 'sb_publishable_7-VUuGeXMTxavq0FflXxUQ_gTp3wBgR';   // Project Settings > API Keys 里的 anon public key
+const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+(() => {
+'use strict';
+const PRESETS = ['AJ1','AJ1 Low','AJ1 Mid','AJ2','AJ3','AJ4','AJ5','AJ6','AJ7','AJ8','AJ9','AJ10','AJ11','AJ12','AJ13','AJ14','AJ15','AJ16','AJ17','AJ18','AJ19','AJ20','AJ21','AJ22','AJ23','AJ24','AJ25','AJ26','AJ27','AJ28','AJ29','AJ30','AJ31','AJ32','AJ33','AJ34','AJ35','AJ36','AJ37','AJ38','AJ39','AJ40','AJ41'];
+/* 经典配色库：[中文名, official/ 下的图片文件名]，来源见 official/sources.json */
+const CATALOG = {
+  AJ1:[["芝加哥 Chicago", "aj1-chicago"], ["禁穿 Banned", "aj1-bred-banned"], ["黑脚趾 Black Toe", "aj1-black-toe"], ["皇家蓝 Royal Reimagined", "aj1-royal"], ["北卡蓝 University Blue", "aj1-university-blue"], ["影子灰 Shadow", "aj1-shadow"], ["Low OG Black Dark Powder Blue", "aj1-low-og-unc"], ["倒钩 Travis Scott Mocha", "aj1-travis-scott"], ["黑曜石 Obsidian", "aj1-obsidian"], ["摩卡 Dark Mocha", "aj1-dark-mocha"], ["扣碎 Shattered Backboard", "aj1-shattered-backboard"], ["Black & Metallic Gold & White", "aj1-black-metallic-gold"], ["Black/Pine Green", "aj1-pine-green"], ["Court Purple", "aj1-court-purple"], ["Light Smoke Grey", "aj1-light-smoke-grey"], ["黑红脚趾 Bred Toe", "aj1-bred-toe"], ["Hyper Royal", "aj1-hyper-royal"], ["Midnight Navy", "aj1-midnight-navy"], ["Electro Orange", "aj1-electro-orange"], ["小闪电 Game Royal", "aj1-game-royal"]],
+  AJ2:[["Chicago", "aj2-chicago"], ["Low University Blue", "aj2-low-unc"], ["Black Cement", "aj2-black-cement"], ["Fire Red", "aj2-fire-red"], ["Lucky Green", "aj2-lucky-green"], ["White and Cement Grey", "aj2-white-cement"], ["x UNION Grey Fog", "aj2-union-grey-fog"], ["Low Python", "aj2-low-python"], ["Low TITAN", "aj2-low-titan"], ["J Balvin", "aj2-j-balvin"], ["Low x Off-White White and Varsity Red", "aj2-off-white-low-white-red"], ["Low x Off-White Black and Varsity Royal", "aj2-off-white-low-black-royal"], ["Low Melon Tint", "aj2-low-melon-tint"], ["Low Cherrywood", "aj2-low-cherrywood"], ["A Ma Maniére Airness", "aj2-a-ma-maniere-airness"]],
+  AJ3:[["白水泥 White Cement Reimagined", "aj3-white-cement-reimagined"], ["黑水泥 Black Cement", "aj3-black-cement"], ["Fire Red", "aj3-fire-red"], ["True Blue", "aj3-true-blue"], ["黑猫 Black Cat", "aj3-black-cat"], ["Fear", "aj3-fear"], ["Cardinal Red", "aj3-cardinal-red"], ["Racer Blue", "aj3-racer-blue"], ["Medium Olive", "aj3-medium-olive"], ["Hall of Fame", "aj3-hall-of-fame"], ["Valor Blue", "aj3-valour-blue"], ["Seoul", "aj3-seoul"], ["Tinker", "aj3-tinker"], ["Archaeo Brown", "aj3-archaeo-brown"], ["Cement Grey", "aj3-cement-grey"], ["White and Silver", "aj3-white-and-silver"], ["Black and Hyper Jade", "aj3-black-hyper-jade"], ["Rare Air", "aj3-rare-air"]],
+  AJ4:[["白水泥 White Cement", "aj4-white-cement"], ["黑猫 Black Cat", "aj4-black-cat"], ["Bred Reimagined", "aj4-bred-reimagined"], ["Red Cement", "aj4-red-cement"], ["Craft Olive", "aj4-craft-medium-olive"], ["Metallic Purple", "aj4-metallic-purple"], ["Fire Red", "aj4-fire-red"], ["Military Black", "aj4-military-black"], ["雷神 Thunder", "aj4-thunder"], ["红雷神 Red Thunder", "aj4-red-thunder"], ["University Blue", "aj4-university-blue"], ["Tech White", "aj4-white-oreo"], ["Cool Grey", "aj4-cool-grey"], ["Midnight Navy", "aj4-midnight-navy"], ["Nike SB Pine Green", "aj4-sb-pine-green"], ["Oxidised Green", "aj4-oxidized-green"], ["Travis Scott Cactus Jack", "aj4-travis-scott-cactus-jack"], ["SE Wet Cement", "aj4-wet-cement"], ["Industrial Blue", "aj4-industrial-blue"]],
+  AJ5:[["葡萄 Grape", "aj5-grape"], ["Fire Red", "aj5-fire-red"], ["奥利奥 Moonlight", "aj5-oreo"], ["Reimagined", "aj5-black-metallic-reimagined"], ["OG White and Metallic Silver", "aj5-white-metallic-silver"], ["Burgundy", "aj5-burgundy"], ["University Blue", "aj5-university-blue"], ["绿豆 Green Bean", "aj5-green-bean"], ["Anthracite", "aj5-anthracite"], ["Purple Grape", "aj5-purple-grape"], ["Aqua", "aj5-aqua"], ["Racer Blue", "aj5-racer-blue"], ["What The", "aj5-what-the"], ["Olive", "aj5-olive"], ["Island Green", "aj5-island-green"], ["White and Black", "aj5-white-and-black"], ["Raging Bull", "aj5-raging-bull-toro-bravo"]],
+  AJ6:[["Black Infrared", "aj6-black-infrared"], ["Carmine", "aj6-carmine"], ["White and Midnight Navy", "aj6-olympic"], ["Infrared Salesman", "aj6-infrared-salesman"], ["Travis Scott", "aj6-travis-scott"], ["Toro Bravo", "aj6-toro-bravo"], ["Cool Grey", "aj6-cool-grey"], ["Black and White", "aj6-black-and-white"], ["White and Black", "aj6-white-and-black"], ["Aqua", "aj6-aqua"], ["Maroon", "aj6-maroon"], ["Gatorade Pine Green", "aj6-gatorade"], ["Yellow Ochre", "aj6-yellow-ochre"], ["x PSG Metallic Silver", "aj6-paris-saint-germain"], ["Chinese New Year", "aj6-chinese-new-year"]],
+  AJ7:[["Cardinal", "aj7-cardinal"], ["Bright Concord", "aj7-bright-concord"], ["Olive", "aj7-olive"], ["Black Gloss", "aj7-black-gloss"], ["x Trophy Room True Red and Obsidian", "aj7-trophy-room"], ["Neutral Indigo and Bright Crimson", "aj7-neutral-indigo"], ["兔八哥 Hare", "aj7-hare"], ["Citrus", "aj7-citrus"], ["Bordeaux", "aj7-bordeaux"], ["Flint", "aj7-flint"], ["Olympic", "aj7-olympic"], ["Raptors", "aj7-raptors"], ["French Blue", "aj7-french-blue"], ["Paris Saint-Germain", "aj7-paris-saint-germain"], ["Olympic Tinker Alternate", "aj7-tinker-alternate"]],
+  AJ8:[["Playoffs", "aj8-playoffs"], ["Aqua", "aj8-aqua"], ["Confetti", "aj8-confetti"], ["OVO Black & Metallic Gold", "aj8-ovo-black"], ["OVO White & Metallic Gold", "aj8-ovo-white"], ["White and True Red", "aj8-white-true-red"], ["Championship Trophy", "aj8-championship-trophy"], ["Chrome", "aj8-chrome"], ["x SoleFly Mi Casa es Su Casa", "aj8-solefly"], ["兔八哥 Bugs Bunny", "aj8-bugs-bunny"], ["Three Peat", "aj8-three-peat"], ["Cool Grey", "aj8-cool-grey"], ["South Beach", "aj8-south-beach"], ["Black Cement", "aj8-black-cement"], ["Phoenix Suns", "aj8-phoenix-suns"]],
+  AJ9:[["Cool Grey", "aj9-cool-grey"], ["OG White & Black", "aj9-og-white-black"], ["Anthracite", "aj9-anthracite"], ["Olive", "aj9-olive"], ["Light Olive", "aj9-light-olive"], ["Melo", "aj9-melo"], ["Statue", "aj9-statue"], ["Flint Grey and French Blue", "aj9-flint-grey-french-blue"], ["Black & University Red", "aj9-black-university-red"], ["Boot Black and Gum Light Brown", "aj9-boot-black-gum"], ["Black and Particle Grey", "aj9-particle-grey"], ["University Blue", "aj9-university-blue"], ["University Gold", "aj9-university-gold"], ["Chile Red", "aj9-chile-red"], ["Powder Blue", "aj9-powder-blue"]],
+  AJ10:[["Charred Grey and Black", "aj10-charred-grey"], ["Rio", "aj10-rio"], ["OVO Black", "aj10-ovo-black"], ["Bulls Over Broadway", "aj10-bulls-over-broadway"], ["SB Multi-Color", "aj10-multi-color"], ["Chicago Bulls", "aj10-chicago"], ["Orlando", "aj10-orlando"], ["Seattle", "aj10-seattle"], ["Steel", "aj10-steel"], ["Light Smoke Grey", "aj10-cement"], ["Shadow", "aj10-shadow"], ["Double Nickel", "aj10-double-nickel"], ["I'm Back", "aj10-im-back"], ["Woodland Camo", "aj10-woodland-camo"], ["Ice Blue", "aj10-ice-blue"]],
+  AJ11:[["康扣 Concord", "aj11-concord"], ["大魔王 Black/Red", "aj11-bred"], ["伽马蓝 Gamma", "aj11-gamma-blue"], ["传奇蓝 Legend Blue", "aj11-legend-blue"], ["72-10", "aj11-72-10"], ["酷灰 Cool Grey", "aj11-cool-grey"], ["太空大灌篮 Black & Concord-White", "aj11-space-jam"], ["樱桃红 Varsity Red", "aj11-cherry"], ["Midnight Navy", "aj11-midnight-navy"], ["Low Bred", "aj11-low-bred"], ["Low Cement Grey", "aj11-low-cement-grey"], ["Low University Blue", "aj11-low-university-blue"], ["Low Cool Grey", "aj11-low-cool-grey"], ["Low White & Metallic Gold", "aj11-low-white-metallic-gold"], ["Low Diffused Blue", "aj11-low-diffused-blue"], ["DMP Gratitude", "aj11-dmp-gratitude"]],
+  AJ12:[["金扣 Taxi", "aj12-taxi"], ["流感 Flu Game", "aj12-flu-game"], ["Black Taxi", "aj12-black-taxi"], ["French Blue", "aj12-french-blue"], ["Playoffs", "aj12-playoffs"], ["Cherry", "aj12-cherry"], ["Indigo", "aj12-indigo"], ["University Gold", "aj12-university-gold"], ["Wings", "aj12-wings"], ["Deep Royal Blue", "aj12-deep-royal-blue"], ["Red Metallic", "aj12-red-metallic"], ["Wool Dark Grey & Black", "aj12-wool-dark-grey"], ["White & Game Royal", "aj12-white-game-royal"], ["CNY", "aj12-cny-2017"]],
+  AJ13:[["熊猫 He Got Game", "aj13-he-got-game"], ["黑猫 Black Cat", "aj13-black-cat"], ["Wheat", "aj13-wheat"], ["Court Purple", "aj13-court-purple"], ["Black Flint", "aj13-black-flint"], ["Flint Grey", "aj13-flint-grey"], ["Playoffs", "aj13-playoffs"], ["Lucky Green", "aj13-lucky-green"], ["Island Green", "aj13-island-green"], ["Obsidian", "aj13-obsidian"], ["Reflective Silver", "aj13-reflective-silver"], ["Dune Red", "aj13-dune-red"], ["Black and University Blue", "aj13-black-university-blue"], ["Wolf Grey", "aj13-wolf-grey"], ["White and University Red", "aj13-white-university-red"], ["White and Midnight Navy", "aj13-white-midnight-navy"], ["Low Bred", "aj13-low-bred"]],
+  "AJ1 Low":[["OG Chicago", "aj1low-low-og-chicago-2025"], ["Bred Toe", "aj1low-low-bred-toe"]],
+  "AJ1 Mid":[["Banned", "aj1mid-mid-banned-2020"], ["Light Smoke Grey Anthracite", "aj1mid-mid-light-smoke-grey-anthracite"]],
+  AJ14:[["Last Shot", "aj14-retro-last-shot-2018"], ["Black Toe", "aj14-retro-black-toe-2014"]],
+  AJ15:[["Stealth", "aj15-retro-stealth-2017"], ["Obsidian", "aj15-retro-obsidian"]],
+  AJ16:[["Midnight Navy", "aj16-retro-midnight-navy-2016"], ["CEO", "aj16-retro-ceo"]],
+  AJ17:[["Low All-Star Lightning", "aj17-retro-low-all-star-lightning-2024"], ["Low SoleFly Alternate Lightning", "aj17-retro-low-solefly-alternate-lightning"]],
+  AJ18:[["Black Sport Royal", "aj18-retro-black-sport-royal"]],
+  AJ19:[["White Flint Grey", "aj19-retro-white-flint-grey"]],
+  AJ20:[["30th Anniversary Laser", "aj20-retro-30th-anniversary-laser"], ["Stealth", "aj20-retro-stealth-2015"]],
+  AJ21:[["OG Flint Grey", "aj21-og-flint-grey"]],
+  AJ22:[["OG Omega", "aj22-og-omega"], ["OG White Varsity Red", "aj22-og-white-varsity-red"]],
+  AJ23:[["Jordan 23 Chicago", "aj23-chicago"]],
+  AJ24:[["2009 Black White", "aj24-air-jordan-2009-black-white"]],
+  AJ25:[["2010 Black Varsity Red", "aj25-air-jordan-2010-black-varsity-red"]],
+  AJ26:[["2011 All-Star White Royal", "aj26-air-jordan-2011-all-star-white-royal"], ["2011 Team Red White", "aj26-air-jordan-2011-team-red-white"]],
+  AJ27:[["2012 UNC", "aj27-air-jordan-2012-unc"]],
+  AJ28:[["XX8 Green Camo", "aj28-xx8-green-camo"], ["XX8 Blue Camo", "aj28-xx8-blue-camo"]],
+  AJ29:[["XX9 Gym Red", "aj29-xx9-gym-red"]],
+  AJ30:[["XXX Black Cat", "aj30-xxx-black-cat"]],
+  AJ31:[["XXX1 Banned", "aj31-xxx1-banned"], ["XXX1 Black Toe", "aj31-xxx1-black-toe"]],
+  AJ32:[["XXXII Rosso Corsa", "aj32-xxxii-rosso-corsa"]],
+  AJ33:[["XXXIII Blackout", "aj33-xxxiii-blackout"]],
+  AJ34:[["XXXIV Eclipse", "aj34-xxxiv-eclipse"]],
+  AJ35:[["XXXV Center of Gravity", "aj35-xxxv-center-of-gravity"]],
+  AJ36:[["Year of the Tiger", "aj36-36-year-of-the-tiger"]],
+  AJ37:[["Hare", "aj37-37-hare"]],
+  AJ38:[["Fundamentals", "aj38-38-fundamentals-clear-sole"]],
+  AJ39:[["Sol", "aj39-39-sol"]],
+  AJ40:[["Chicago", "aj40-40-chicago"], ["The Classic", "aj40-40-the-classic"]],
+  AJ41:[["University Red", "aj41-41-university-red"]]
+};
+const COLORWAYS = Object.fromEntries(Object.entries(CATALOG).map(([k,v]) => [k.toUpperCase(), v.map(z => z[0])]));
+const $ = s => document.querySelector(s);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2,'0');
+const todayISO = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const fmt = iso => iso ? iso.replace(/-/g,'.') : '';
+const daysSince = iso => { if(!iso) return 0; const [y,m,d] = iso.split('-').map(Number); const t = new Date(y,m-1,d); const n = new Date(); n.setHours(0,0,0,0); return Math.max(1, Math.round((n - t)/86400000) + 1); };
+/* 官方产品图：未点亮卡片用，相对路径 official/*.webp */
+const OFFICIAL = {};
+Object.entries(CATALOG).forEach(([k,v]) => v.forEach(([n,f]) => { OFFICIAL[`${k} ${n}`] = `official/${f}.webp`; }));
+/* 旧版配色名兼容 */
+/* 旧版配色名（改用官方名前的叫法）→ 图片，已保存的鞋保留原名仍能显示官方图 */
+const LEGACY_NAMES = {"AJ1 芝加哥": "aj1-chicago", "AJ1 禁穿 Bred": "aj1-bred-banned", "AJ1 黑脚趾": "aj1-black-toe", "AJ1 皇家蓝 Royal": "aj1-royal", "AJ1 北卡蓝": "aj1-university-blue", "AJ1 影子灰": "aj1-shadow", "AJ1 Low 北卡": "aj1-low-og-unc", "AJ1 倒钩": "aj1-travis-scott", "AJ1 黑曜石": "aj1-obsidian", "AJ1 摩卡": "aj1-dark-mocha", "AJ1 扣碎": "aj1-shattered-backboard", "AJ1 黑金": "aj1-black-metallic-gold", "AJ1 黑绿": "aj1-pine-green", "AJ1 黑紫": "aj1-court-purple", "AJ1 烟灰": "aj1-light-smoke-grey", "AJ1 北卡脚趾": "aj1-unc-toe", "AJ1 黑红脚趾": "aj1-bred-toe", "AJ1 冰蓝": "aj1-hyper-royal", "AJ1 藏青": "aj1-midnight-navy", "AJ1 电光橙": "aj1-electro-orange", "AJ2 白红": "aj2-white-varsity-red", "AJ2 芝加哥": "aj2-chicago", "AJ2 白蓝": "aj2-low-unc", "AJ2 黑水泥": "aj2-black-cement", "AJ2 火焰红": "aj2-fire-red", "AJ2 幸运绿": "aj2-lucky-green", "AJ2 白水泥": "aj2-white-cement", "AJ2 雾灰 Union": "aj2-union-grey-fog", "AJ2 蟒纹": "aj2-low-python", "AJ2 Titan": "aj2-low-titan", "AJ2 J Balvin": "aj2-j-balvin", "AJ2 OW 白红": "aj2-off-white-low-white-red", "AJ2 OW 黑蓝": "aj2-off-white-low-black-royal", "AJ2 蜜瓜": "aj2-low-melon-tint", "AJ2 樱桃木": "aj2-low-cherrywood", "AJ3 白水泥": "aj3-white-cement-reimagined", "AJ3 黑水泥": "aj3-black-cement", "AJ3 火焰红": "aj3-fire-red", "AJ3 真青 True Blue": "aj3-true-blue", "AJ3 黑猫": "aj3-black-cat", "AJ3 恐惧": "aj3-fear", "AJ3 红雀": "aj3-cardinal-red", "AJ3 赛车蓝": "aj3-racer-blue", "AJ3 橄榄": "aj3-medium-olive", "AJ3 名人堂": "aj3-hall-of-fame", "AJ3 勇气蓝": "aj3-valour-blue", "AJ3 首尔": "aj3-seoul", "AJ3 Tinker": "aj3-tinker", "AJ3 橡木棕": "aj3-archaeo-brown", "AJ3 水泥灰": "aj3-cement-grey", "AJ3 白银": "aj3-white-and-silver", "AJ3 翡翠": "aj3-black-hyper-jade", "AJ3 Rare Air": "aj3-rare-air", "AJ4 白水泥": "aj4-white-cement", "AJ4 黑猫": "aj4-black-cat", "AJ4 公牛": "aj4-bred-reimagined", "AJ4 红水泥": "aj4-red-cement", "AJ4 军绿": "aj4-craft-medium-olive", "AJ4 紫葡萄": "aj4-metallic-purple", "AJ4 火焰红": "aj4-fire-red", "AJ4 军事黑": "aj4-military-black", "AJ4 雷神": "aj4-thunder", "AJ4 红雷神": "aj4-red-thunder", "AJ4 北卡蓝": "aj4-university-blue", "AJ4 白奥利奥": "aj4-white-oreo", "AJ4 酷灰": "aj4-cool-grey", "AJ4 藏青": "aj4-midnight-navy", "AJ4 SB 松绿": "aj4-sb-pine-green", "AJ4 氧化绿": "aj4-oxidized-green", "AJ4 TS 仙人掌": "aj4-travis-scott-cactus-jack", "AJ4 湿水泥": "aj4-wet-cement", "AJ4 工业蓝": "aj4-industrial-blue", "AJ5 葡萄": "aj5-grape", "AJ5 火焰红": "aj5-fire-red", "AJ5 奥利奥": "aj5-oreo", "AJ5 黑金属": "aj5-black-metallic-reimagined", "AJ5 白金属": "aj5-white-metallic-silver", "AJ5 酒红": "aj5-burgundy", "AJ5 北卡蓝": "aj5-university-blue", "AJ5 绿豆": "aj5-green-bean", "AJ5 碳灰": "aj5-anthracite", "AJ5 紫葡萄": "aj5-purple-grape", "AJ5 水蓝": "aj5-aqua", "AJ5 赛车蓝": "aj5-racer-blue", "AJ5 鸳鸯": "aj5-what-the", "AJ5 橄榄": "aj5-olive", "AJ5 岛屿绿": "aj5-island-green", "AJ5 白黑": "aj5-white-and-black", "AJ6 黑红": "aj6-black-infrared", "AJ6 白红": "aj6-carmine", "AJ6 奥运": "aj6-olympic", "AJ6 红外线": "aj6-infrared-salesman", "AJ6 TS 橄榄": "aj6-travis-scott", "AJ6 斗牛": "aj6-toro-bravo", "AJ6 酷灰": "aj6-cool-grey", "AJ6 黑白": "aj6-black-and-white", "AJ6 白黑": "aj6-white-and-black", "AJ6 水蓝": "aj6-aqua", "AJ6 酒红": "aj6-maroon", "AJ6 佳得乐": "aj6-gatorade", "AJ6 赭黄": "aj6-yellow-ochre", "AJ6 大巴黎": "aj6-paris-saint-germain", "AJ6 中国年": "aj6-chinese-new-year", "AJ7 红雀": "aj7-cardinal", "AJ7 亮紫": "aj7-bright-concord", "AJ7 橄榄": "aj7-olive", "AJ7 黑亮": "aj7-black-gloss", "AJ7 Trophy Room": "aj7-trophy-room", "AJ7 靛蓝": "aj7-neutral-indigo", "AJ7 兔八哥": "aj7-hare", "AJ7 柑橘": "aj7-citrus", "AJ7 波尔多": "aj7-bordeaux", "AJ7 火石": "aj7-flint", "AJ8 季后赛": "aj8-playoffs", "AJ8 水蓝": "aj8-aqua", "AJ8 五彩": "aj8-confetti", "AJ8 OVO 黑": "aj8-ovo-black", "AJ8 OVO 白": "aj8-ovo-white", "AJ8 白红": "aj8-white-true-red", "AJ8 冠军杯": "aj8-championship-trophy", "AJ8 铬黑": "aj8-chrome", "AJ8 SoleFly": "aj8-solefly", "AJ8 兔八哥": "aj8-bugs-bunny", "AJ9 酷灰": "aj9-cool-grey", "AJ9 白黑": "aj9-og-white-black", "AJ9 碳灰": "aj9-anthracite", "AJ9 橄榄": "aj9-olive", "AJ9 浅橄榄": "aj9-light-olive", "AJ9 甜瓜": "aj9-melo", "AJ9 雕像": "aj9-statue", "AJ9 法国蓝": "aj9-flint-grey-french-blue", "AJ9 黑红": "aj9-black-university-red", "AJ9 靴子": "aj9-boot-black-gum", "AJ9 黑颗粒灰": "aj9-particle-grey", "AJ10 炭灰": "aj10-charred-grey", "AJ10 里约": "aj10-rio", "AJ10 OVO 黑": "aj10-ovo-black", "AJ10 百老汇": "aj10-bulls-over-broadway", "AJ10 多彩": "aj10-multi-color", "AJ10 芝加哥": "aj10-chicago", "AJ10 奥兰多": "aj10-orlando", "AJ10 西雅图": "aj10-seattle", "AJ11 康扣": "aj11-concord", "AJ11 大魔王": "aj11-bred", "AJ11 伽马蓝": "aj11-gamma-blue", "AJ11 传奇蓝": "aj11-legend-blue", "AJ11 72-10": "aj11-72-10", "AJ11 酷灰": "aj11-cool-grey", "AJ11 太空大灌篮": "aj11-space-jam", "AJ11 樱桃红": "aj11-cherry", "AJ11 藏青": "aj11-midnight-navy", "AJ11 Low 黑红": "aj11-low-bred", "AJ11 Low 水泥灰": "aj11-low-cement-grey", "AJ11 Low 北卡蓝": "aj11-low-university-blue", "AJ11 Low 酷灰": "aj11-low-cool-grey", "AJ11 Low 白金": "aj11-low-white-metallic-gold", "AJ11 Low 漫游蓝": "aj11-low-diffused-blue", "AJ12 金扣": "aj12-taxi", "AJ12 流感": "aj12-flu-game", "AJ12 出租车 黑": "aj12-black-taxi", "AJ12 法国蓝": "aj12-french-blue", "AJ12 季后赛": "aj12-playoffs", "AJ12 樱桃红": "aj12-cherry", "AJ12 靛蓝": "aj12-indigo", "AJ12 大学金": "aj12-university-gold", "AJ12 黑红": "aj12-black-varsity-red", "AJ12 Wings": "aj12-wings", "AJ12 深皇家蓝": "aj12-deep-royal-blue", "AJ12 红金属": "aj12-red-metallic", "AJ12 羊毛灰": "aj12-wool-dark-grey", "AJ12 白皇家蓝": "aj12-white-game-royal", "AJ12 中国年": "aj12-cny-2017", "AJ13 熊猫": "aj13-he-got-game", "AJ13 黑猫": "aj13-black-cat", "AJ13 麦芽": "aj13-wheat", "AJ13 篮球场紫": "aj13-court-purple", "AJ13 黑灰": "aj13-black-flint", "AJ13 火石灰": "aj13-flint-grey", "AJ13 季后赛": "aj13-playoffs", "AJ13 幸运绿": "aj13-lucky-green", "AJ13 岛屿绿": "aj13-island-green", "AJ13 黑曜石": "aj13-obsidian", "AJ13 反光银": "aj13-reflective-silver", "AJ13 沙丘红": "aj13-dune-red", "AJ13 黑北卡": "aj13-black-university-blue", "AJ13 狼灰": "aj13-wolf-grey", "AJ13 白红": "aj13-white-university-red", "AJ13 白藏青": "aj13-white-midnight-navy", "AJ13 Low 黑红": "aj13-low-bred", "AJ1 小闪电": "aj1-game-royal", "AJ2 A Ma Maniere": "aj2-a-ma-maniere-airness", "AJ5 斗牛": "aj5-raging-bull-toro-bravo", "AJ7 奥运": "aj7-olympic", "AJ7 猛龙": "aj7-raptors", "AJ7 法国蓝": "aj7-french-blue", "AJ7 大巴黎": "aj7-paris-saint-germain", "AJ8 三连冠": "aj8-three-peat", "AJ8 酷灰": "aj8-cool-grey", "AJ8 南海岸": "aj8-south-beach", "AJ8 黑水泥": "aj8-black-cement", "AJ8 太阳": "aj8-phoenix-suns", "AJ9 北卡蓝": "aj9-university-blue", "AJ9 大学金": "aj9-university-gold", "AJ9 辣椒红": "aj9-chile-red", "AJ9 冰蓝": "aj9-powder-blue", "AJ10 钢铁灰": "aj10-steel", "AJ10 水泥灰": "aj10-cement", "AJ10 影子": "aj10-shadow", "AJ10 双五": "aj10-double-nickel", "AJ10 I'm Back": "aj10-im-back", "AJ10 林地迷彩": "aj10-woodland-camo", "AJ10 冰蓝": "aj10-ice-blue", "AJ11 白金 DMP": "aj11-dmp-gratitude", "AJ7 奥运 Alternate": "aj7-tinker-alternate", "AJ1 Low 芝加哥": "aj1low-low-og-chicago-2025", "AJ1 Low 黑红脚趾": "aj1low-low-bred-toe", "AJ1 Mid 禁穿 Bred": "aj1mid-mid-banned-2020", "AJ1 Mid 烟灰": "aj1mid-mid-light-smoke-grey-anthracite", "AJ14 最后一投": "aj14-retro-last-shot-2018", "AJ14 黑脚趾": "aj14-retro-black-toe-2014", "AJ15 隐形": "aj15-retro-stealth-2017", "AJ15 黑曜石": "aj15-retro-obsidian", "AJ16 藏青": "aj16-retro-midnight-navy-2016", "AJ16 CEO": "aj16-retro-ceo", "AJ17 闪电": "aj17-retro-low-all-star-lightning-2024", "AJ17 SoleFly 闪电": "aj17-retro-low-solefly-alternate-lightning", "AJ18 黑皇家蓝": "aj18-retro-black-sport-royal", "AJ19 火石灰": "aj19-retro-white-flint-grey", "AJ20 镭射": "aj20-retro-30th-anniversary-laser", "AJ20 隐形": "aj20-retro-stealth-2015", "AJ21 火石灰": "aj21-og-flint-grey", "AJ22 Omega": "aj22-og-omega", "AJ22 白红": "aj22-og-white-varsity-red", "AJ23 芝加哥": "aj23-chicago", "AJ24 黑白": "aj24-air-jordan-2009-black-white", "AJ25 黑红": "aj25-air-jordan-2010-black-varsity-red", "AJ26 全明星": "aj26-air-jordan-2011-all-star-white-royal", "AJ26 红白": "aj26-air-jordan-2011-team-red-white", "AJ27 北卡蓝": "aj27-air-jordan-2012-unc", "AJ28 绿迷彩": "aj28-xx8-green-camo", "AJ28 蓝迷彩": "aj28-xx8-blue-camo", "AJ29 体育红": "aj29-xx9-gym-red", "AJ30 黑猫": "aj30-xxx-black-cat", "AJ31 禁穿 Banned": "aj31-xxx1-banned", "AJ31 黑脚趾": "aj31-xxx1-black-toe", "AJ32 法拉利红": "aj32-xxxii-rosso-corsa", "AJ33 全黑": "aj33-xxxiii-blackout", "AJ34 日食": "aj34-xxxiv-eclipse", "AJ35 重心": "aj35-xxxv-center-of-gravity", "AJ36 虎年": "aj36-36-year-of-the-tiger", "AJ37 兔八哥": "aj37-37-hare", "AJ38 基本功": "aj38-38-fundamentals-clear-sole", "AJ39 太阳 Sol": "aj39-39-sol", "AJ40 芝加哥": "aj40-40-chicago", "AJ40 The Classic": "aj40-40-the-classic", "AJ41 红宝石 Ruby": "aj41-41-university-red", "AJ12 出租车": "aj12-black-taxi"};
+Object.entries(LEGACY_NAMES).forEach(([a,f]) => { if(!OFFICIAL[a]) OFFICIAL[a] = `official/${f}.webp`; });
+const offKey=n=>String(n||'').replace(/\s+/g,'').toLowerCase();
+const OFF_IDX=Object.fromEntries(Object.entries(OFFICIAL).map(([k,v])=>[offKey(k),v]));
+const offImg=n=>OFF_IDX[offKey(n)]||'';
+const sil = () => '<svg><use href="#leaper"/></svg>';
+const stampSvg = () => '<svg viewBox="0 0 140 140"><use href="#stampSym"/></svg>';
+
+/* ==========================================================
+   Store：唯一的数据层
+   本机 localStorage 是主存储（离线可用），Cloud 只是它的同步通道
+   ========================================================== */
+const Store = (() => {
+  const KEY = 'aj-cyber-dex-v1';
+  const mem = new Map();               // 本机放不下时，云端照片只缓存在内存
+  let s, listeners = [];
+  const seed = () => ({ v:2, current:null, series:[], shoes:[], tomb:[] });
+  function norm(d){
+    const now = Date.now();
+    d.tomb = Array.isArray(d.tomb) ? d.tomb : [];
+    d.series.forEach((x,i) => { if(!x.updatedAt) x.updatedAt = now; if(x.sort == null) x.sort = i; });
+    d.shoes.forEach((x,i) => { if(!x.updatedAt) x.updatedAt = x.litAt || x.createdAt || now; if(x.sort == null) x.sort = i; });
+    d.v = 2; return d;
+  }
+  function load(){
+    try{
+      const raw = localStorage.getItem(KEY);
+      const d = raw ? JSON.parse(raw) : null;
+      s = (d && Array.isArray(d.series) && Array.isArray(d.shoes)) ? norm(d) : seed();
+    }catch(e){ s = seed(); }
+    if(!localStorage.getItem(KEY)) persist();
+    return s;
+  }
+  function persist(){
+    try{ localStorage.setItem(KEY, JSON.stringify(s)); return true; }
+    catch(e){ return false; }
+  }
+  /* 对比改动前后，给变动的记录打 updatedAt，被删的记录留墓碑，供同步用 */
+  function stamp(before){
+    const now = Date.now();
+    for(const kind of ['series','shoes']){
+      const old = new Map(before[kind].map(x => [x.id, x]));
+      const ids = new Set();
+      s[kind].forEach((x,i) => {
+        ids.add(x.id);
+        if(x.sort == null) x.sort = i;
+        const o = old.get(x.id);
+        const a = o ? JSON.stringify({...o, updatedAt:0, photoDirty:0}) : null;
+        const b = JSON.stringify({...x, updatedAt:0, photoDirty:0});
+        if(a !== b){
+          if(kind === 'shoes' && x.photo && (!o || o.photo !== x.photo)) x.photoDirty = true;
+          x.updatedAt = now;
+        }
+      });
+      before[kind].forEach(x => { if(!ids.has(x.id)) s.tomb.push({ kind, id:x.id, photoPath:x.photoPath||null, updatedAt:now }); });
+    }
+  }
+  /* 执行一次修改；存不下就整体回滚 */
+  function commit(mutate){
+    const snap = JSON.stringify(s), before = JSON.parse(snap);
+    mutate(s);
+    stamp(before);
+    if(persist()){ emit('local'); return true; }
+    s = JSON.parse(snap); return false;
+  }
+  function replace(d){
+    return commit(() => {
+      const keep = s.current;
+      s.series = d.series; s.shoes = d.shoes; s.current = d.current || keep;
+    });
+  }
+  function setCurrent(id){ s.current = id; persist(); }
+  function emit(kind){ listeners.forEach(f => f(kind)); }
+  const onChange = f => listeners.push(f);
+  const photo = x => (x && (x.photo || mem.get(x.id))) || '';
+  const bytes = () => { try{ return (localStorage.getItem(KEY) || '').length * 2; }catch(e){ return 0; } };
+
+  /* ---------- 同步用：表行 <-> 本机记录 ---------- */
+  const iso = t => new Date(t).toISOString();
+  const seriesName = id => (s.series.find(z => z.id === id) || {}).name || '';
+  function row(kind, x, uid){
+    if(kind === 'series') return { id:x.id, user_id:uid, name:x.name, sort:x.sort||0, updated_at:iso(x.updatedAt), deleted:false };
+    const sn = seriesName(x.seriesId);
+    return {
+      id:x.id, user_id:uid, series_id:x.seriesId, name:x.name,
+      colorway: sn && x.name.startsWith(sn) ? x.name.slice(sn.length).trim() : x.name,
+      status: !x.lit ? 'unlit' : (x.sailed ? 'sailed' : 'lit'),
+      got_date:x.date||null, memory:x.memory||null, sailed_date:x.sailedDate||null,
+      photo_path:x.photoPath||null, sort:x.sort||0, updated_at:iso(x.updatedAt), deleted:false
+    };
+  }
+  function fromRow(kind, r, l){
+    const t = Date.parse(r.updated_at);
+    if(kind === 'series') return { ...(l||{}), id:r.id, name:r.name, sort:r.sort, updatedAt:t };
+    const same = l && l.photoPath && l.photoPath === r.photo_path;
+    const x = { ...(l||{}), id:r.id, seriesId:r.series_id, name:r.name, lit:r.status !== 'unlit', sailed:r.status === 'sailed',
+      date:r.got_date||null, memory:r.memory||'', sailedDate:r.sailed_date||null, photoPath:r.photo_path||null,
+      sort:r.sort, updatedAt:t, createdAt:(l && l.createdAt) || t };
+    if(!same){ delete x.photo; mem.delete(r.id); }
+    delete x.photoDirty;
+    return x;
+  }
+  /* 以 updated_at 为准，后写者胜。返回需要推上去的记录和需要拉下来的照片 */
+  function merge(remote){
+    const plan = { push:{series:[],shoes:[]}, tombs:[], uploads:[], downloads:[] };
+    for(const kind of ['series','shoes']){
+      const loc = new Map(s[kind].map(x => [x.id, x]));
+      const rem = new Map((remote[kind]||[]).map(r => [r.id, r]));
+      const tmb = new Map(s.tomb.filter(t => t.kind === kind).map(t => [t.id, t]));
+      const ids = new Set([...loc.keys(), ...rem.keys(), ...tmb.keys()]);
+      const next = [];
+      for(const id of ids){
+        const l = loc.get(id), r = rem.get(id), t = tmb.get(id);
+        const lt = l ? l.updatedAt : (t ? t.updatedAt : 0);
+        const rt = r ? Date.parse(r.updated_at) : 0;
+        if(r && rt > lt){
+          if(t) s.tomb = s.tomb.filter(z => z !== t);
+          if(r.deleted) continue;
+          const x = fromRow(kind, r, l); next.push(x);
+          if(kind === 'shoes' && x.photoPath && !photo(x)) plan.downloads.push(x.id);
+        }else{
+          if(l){
+            next.push(l);
+            if(lt > rt){
+              plan.push[kind].push(l.id);
+              if(kind === 'shoes' && l.photo && (l.photoDirty || !l.photoPath)) plan.uploads.push(l.id);
+            }else if(kind === 'shoes' && l.photoPath && !photo(l)) plan.downloads.push(l.id);
+          }else if(t && lt > rt){ if(r) plan.tombs.push(t); else s.tomb = s.tomb.filter(z => z !== t); }
+        }
+      }
+      next.sort((a,b) => (a.sort||0) - (b.sort||0));
+      s[kind] = next;
+    }
+    if(s.current && !s.series.some(x => x.id === s.current)) s.current = s.series[0] ? s.series[0].id : null;
+    persist(); emit('remote');
+    return plan;
+  }
+  const find = (kind, id) => s[kind].find(x => x.id === id);
+  function photoUploaded(id, path){ const x = find('shoes', id); if(!x) return; x.photoPath = path; delete x.photoDirty; persist(); }
+  function cachePhoto(id, path, data){
+    const x = find('shoes', id); if(!x || x.photoPath !== path) return;
+    x.photo = data;
+    if(!persist()){ delete x.photo; mem.set(id, data); }
+    emit('remote');
+  }
+  function tombsDone(list){ s.tomb = s.tomb.filter(t => !list.includes(t)); persist(); }
+  return {
+    load, persist, commit, replace, setCurrent, onChange, photo, bytes,
+    row, merge, find, photoUploaded, cachePhoto, tombsDone,
+    get s(){ return s; }
+  };
+})();
+
+/* ==========================================================
+   Cloud：可选的 Supabase 登录与同步
+   SUPABASE_URL / SUPABASE_ANON_KEY 为空时整个模块静默关闭，应用照常离线使用
+   ========================================================== */
+const Cloud = (() => {
+  const enabled = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
+  let sb = null;
+  /* 只有填了地址和密钥才去 CDN 加载 supabase-js v2，离线或未配置时完全不联网 */
+  const loadLib = () => window.supabase ? Promise.resolve() : new Promise((res, rej) => {
+    const t = document.createElement('script'); t.src = SUPABASE_JS; t.async = true;
+    t.onload = res; t.onerror = rej; document.head.appendChild(t);
+  });
+  let user = null, busy = false, again = false, timer = null, status = 'off', lastAt = 0;
+  const subs = [];
+  const emit = () => subs.forEach(f => f());
+  const setStatus = v => { status = v; emit(); };
+  const toBlob = d => fetch(d).then(r => r.blob());
+  const toData = b => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(b); });
+
+  async function init(){
+    if(!enabled) return;
+    try{ await loadLib(); }catch(e){ status = 'offline'; emit(); return; }
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth:{ persistSession:true, storageKey:'aj-dex-auth' } });
+    const { data } = await sb.auth.getSession();
+    user = data && data.session ? data.session.user : null;
+    status = user ? 'idle' : 'out'; emit();
+    sb.auth.onAuthStateChange((ev, ses) => {
+      const u = ses ? ses.user : null, changed = (u && u.id) !== (user && user.id);
+      user = u; if(!u) status = 'out';
+      emit(); if(u && changed) sync();
+    });
+    if(user) sync();
+    window.addEventListener('online', () => schedule(100));
+  }
+  async function sendCode(email){
+    if(!sb) throw new Error('not-configured');
+    const { error } = await sb.auth.signInWithOtp({ email, options:{ shouldCreateUser:true } });
+    if(error) throw error;
+  }
+  async function verify(email, token){
+    if(!sb) throw new Error('not-configured');
+    const { data, error } = await sb.auth.verifyOtp({ email, token, type:'email' });
+    if(error) throw error;
+    user = data.user; emit();
+    await sync();
+  }
+  async function signOut(){ if(sb) await sb.auth.signOut(); user = null; status = 'out'; emit(); }
+  function schedule(ms = 800){ if(!user) return; clearTimeout(timer); timer = setTimeout(sync, ms); }
+
+  async function sync(){
+    if(!sb || !user) return;
+    if(busy){ again = true; return; }
+    busy = true; setStatus('syncing');
+    try{
+      const uid = user.id;
+      const [a, b] = await Promise.all([ sb.from('series').select('*'), sb.from('shoes').select('*') ]);
+      if(a.error) throw a.error; if(b.error) throw b.error;
+      const plan = Store.merge({ series:a.data, shoes:b.data });
+      // 1. 照片先上传到私有桶 photos/<user_id>/...
+      for(const id of plan.uploads){
+        const x = Store.find('shoes', id); if(!x || !x.photo) continue;
+        const path = `${uid}/${id}-${Date.now().toString(36)}.jpg`;
+        const up = await sb.storage.from('photos').upload(path, await toBlob(x.photo), { contentType:'image/jpeg', upsert:true });
+        if(up.error) throw up.error;
+        const old = x.photoPath; Store.photoUploaded(id, path);
+        if(old && old !== path) sb.storage.from('photos').remove([old]).catch(() => {});
+      }
+      // 2. 本机较新的记录推上去
+      const rows = kind => plan.push[kind].map(id => Store.find(kind, id)).filter(Boolean).map(x => Store.row(kind, x, uid));
+      const rs = rows('series'), rh = rows('shoes');
+      if(rs.length){ const r = await sb.from('series').upsert(rs); if(r.error) throw r.error; }
+      if(rh.length){ const r = await sb.from('shoes').upsert(rh); if(r.error) throw r.error; }
+      // 3. 删除以墓碑形式同步（deleted = true），照片一并清掉
+      if(plan.tombs.length){
+        for(const kind of ['series','shoes']){
+          const t = plan.tombs.filter(z => z.kind === kind);
+          if(!t.length) continue;
+          const r = await sb.from(kind).upsert(t.map(z => ({ id:z.id, user_id:uid, name:'', deleted:true, updated_at:new Date(z.updatedAt).toISOString() })));
+          if(r.error) throw r.error;
+        }
+        const paths = plan.tombs.map(z => z.photoPath).filter(Boolean);
+        if(paths.length) sb.storage.from('photos').remove(paths).catch(() => {});
+        Store.tombsDone(plan.tombs);
+      }
+      // 4. 云端照片通过签名链接取回，缓存到本机
+      for(const id of plan.downloads){
+        const x = Store.find('shoes', id); if(!x || !x.photoPath) continue;
+        const { data, error } = await sb.storage.from('photos').createSignedUrl(x.photoPath, 600);
+        if(error || !data) continue;
+        const r = await fetch(data.signedUrl); if(!r.ok) continue;
+        Store.cachePhoto(id, x.photoPath, await toData(await r.blob()));
+      }
+      lastAt = Date.now(); setStatus('idle');
+    }catch(e){
+      console.warn('[sync]', e);
+      setStatus(navigator.onLine === false ? 'offline' : 'error');
+    }
+    busy = false;
+    if(again){ again = false; schedule(300); }
+  }
+  return {
+    enabled, init, sendCode, verify, signOut, sync, schedule,
+    onChange: f => subs.push(f),
+    get user(){ return user; }, get status(){ return status; }, get lastAt(){ return lastAt; }
+  };
+})();
+
+Store.load();
+function commit(mutate, failMsg){
+  if(Store.commit(mutate)) return true;
+  toast(failMsg || '存储空间已满，先导出备份再清理几张照片吧');
+  return false;
+}
+const save = () => Store.persist();
+const cur = () => Store.s.series.find(x => x.id === Store.s.current) || Store.s.series[0];
+const shoesOf = sid => Store.s.shoes.filter(x => x.seriesId === sid);
+const shoe = id => Store.s.shoes.find(x => x.id === id);
+
+/* ---------- render ---------- */
+let justLit = null;
+function render(){
+  if(!Store.s.series.length){
+    $('#stat').innerHTML = '还没有展厅';
+    $('#tabs').innerHTML = ''; $('#hall').innerHTML = '';
+    $('#grid').innerHTML = `<div class="first" style="grid-column:1/-1"><svg><use href="#leaper"/></svg><h3>这里是你的赛博鞋柜</h3><p>点右上角的 + 建立第一个展厅<br>比如 AJ1，或者任何你想要的分类</p><div class="mono">只要点亮 · 永不褪色</div></div>`;
+    $('.foot').classList.add('hidden'); return;
+  }
+  $('.foot').classList.remove('hidden');
+  if(!cur()) Store.s.current = Store.s.series[0].id;
+  const c = cur();
+  Store.s.current = c.id;
+  const lit = Store.s.shoes.filter(x=>x.lit).length;
+  $('#stat').innerHTML = `已点亮 <b>${pad(lit)}</b> / ${pad(Store.s.shoes.length)}　·　${Store.s.series.length} 个展厅`;
+  $('#tabs').innerHTML = Store.s.series.map(s => {
+    const n = shoesOf(s.id).length;
+    return `<button class="tab ${s.id===c.id?'on':''}" data-sid="${s.id}">${esc(s.name)}<span class="n">${n}</span></button>`;
+  }).join('');
+  const list = shoesOf(c.id);
+  const ln = list.filter(x=>x.lit).length;
+  const pct = list.length ? Math.round(ln/list.length*100) : 0;
+  $('#hall').innerHTML = `<span>${esc(c.name)} 展厅</span><span class="bar"><i style="width:${pct}%"></i></span><span>${ln}/${list.length} 已点亮</span>`;
+  let h = list.map((x,i) => cardHTML(x,i)).join('');
+  h += `<button class="card new" id="btnNewShoe" style="animation-delay:${Math.min(list.length,8)*30}ms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>录入新鞋</span></button>`;
+  if(!list.length) h += `<div class="empty-hint">这个展厅还空着<br>先留一个位置，等它到了再点亮</div>`;
+  $('#grid').classList.toggle('calm', !!justLit); // on light-up only the new card moves
+  $('#grid').innerHTML = h;
+  if(justLit) revealB($(`#grid .card.reveal[data-id="${justLit}"]`));
+  justLit = null;
+  const on = $('#tabs .tab.on'); if(on) on.scrollIntoView({inline:'nearest',block:'nearest'});
+}
+function ghostHTML(x){ // the grey 待点亮 face, laid over the fresh card so it can develop away
+  const o=offImg(x.name);
+  return `<div class="ghost">${o?`<div class="sil has-off">${sil()}</div><div class="offimg"><img src="${o}" alt=""></div>`:''}<span class="corner">待点亮</span><div class="uname">${esc(x.name)}</div></div>`;
+}
+/* 点亮动画 B · 显影 (900ms): grey face fades out, photo saturation 0→1 + scale 1.02→1, gradient & text rise 8px */
+function revealB(card){
+  if(!card || !card.animate) return;
+  const q=sel=>card.querySelector(sel), E='cubic-bezier(.22,1,.36,1)', F='cubic-bezier(.4,0,.2,1)';
+  const ph=q('.ph'), img=q('.ph img'), grad=q('.grad'), tag=q('.tag'), g=q('.ghost');
+  const an=(el,kf,o)=>el&&el.animate(kf,Object.assign({fill:'both',easing:E},o));
+  const done=()=>{ card.classList.remove('reveal'); if(g) g.remove(); card.getAnimations({subtree:true}).forEach(a=>a.cancel()); };
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){
+    if(g) g.remove();
+    [ph,grad,tag].forEach(e=>an(e,[{opacity:0},{opacity:1}],{duration:200,easing:'ease-out'}));
+    setTimeout(done,240); return;
+  }
+  if(g){
+    an(g.querySelector('.offimg'),[{opacity:1,filter:'blur(0)'},{opacity:0,filter:'blur(2px)'}],{duration:500,easing:F});
+    g.querySelectorAll('.sil,.corner,.uname').forEach(e=>an(e,[{opacity:1},{opacity:0}],{duration:260,easing:'linear'}));
+  }
+  an(ph,[{opacity:0},{opacity:1}],{duration:420,easing:F});
+  an(img,[{filter:'saturate(0) brightness(.82)',transform:'scale(1.02)'},{filter:'saturate(1) brightness(1)',transform:'scale(1)'}],{duration:900});
+  an(grad,[{opacity:0},{opacity:1}],{duration:500,delay:380});
+  an(tag,[{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}],{duration:520,delay:380});
+  setTimeout(done,960);
+}
+function cardHTML(x,i){
+  const d = `style="animation-delay:${Math.min(i,8)*30}ms"`;
+  if(!x.lit) return `<div class="card unlit${offImg(x.name)?' has-img':''}" data-id="${x.id}" ${d}>${offImg(x.name)?`<div class="sil has-off">${sil()}</div><div class="offimg"><img src="${offImg(x.name)}" alt="" loading="lazy" decoding="async"></div>`:`<div class="sil">${sil()}</div>`}<span class="corner">待点亮</span><div class="tag"><div class="nm">${esc(x.name)}</div><div class="dt">----.--.--</div></div></div>`;
+  const cls = ['card','lit']; if(x.sailed) cls.push('sailed'); if(justLit===x.id) cls.push('reveal');
+  return `<div class="${cls.join(' ')}" data-id="${x.id}" ${justLit===x.id?'':d}><div class="sil">${sil()}</div><div class="ph"><img src="${Store.photo(x)}" alt="" decoding="async"></div><div class="grad"></div>${justLit===x.id?ghostHTML(x):''}${x.sailed?`<div class="mini-stamp">${stampSvg()}</div>`:''}<div class="tag"><div class="nm">${esc(x.name)}</div><div class="dt">${x.sailed?'已远航 · ':''}${fmt(x.date)}</div></div></div>`;
+}
+
+/* ---------- toast & dialog ---------- */
+let tt;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('on'),2200); }
+function confirmDlg(title, text, yes='确定'){
+  return new Promise(res => {
+    $('#dlgT').textContent=title; $('#dlgP').textContent=text; $('#dlgYes').textContent=yes;
+    const d=$('#dialog'); d.classList.add('on');
+    const done = v => { d.classList.remove('on'); $('#dlgYes').onclick=$('#dlgNo').onclick=null; res(v); };
+    $('#dlgYes').onclick=()=>done(true); $('#dlgNo').onclick=()=>done(false);
+  });
+}
+
+/* ---------- sheet ---------- */
+function openSheet(html, onMount){
+  $('#sheetBody').innerHTML = html;
+  $('#scrim').classList.add('on'); $('#sheet').classList.add('on');
+  onMount && onMount($('#sheetBody'));
+}
+function closeSheet(){ $('#scrim').classList.remove('on'); $('#sheet').classList.remove('on'); }
+$('#scrim').onclick = closeSheet;
+
+/* 1. 建册 */
+function addSeriesSheet(){
+  const have = new Set(Store.s.series.map(s=>s.name.toUpperCase()));
+  openSheet(`
+    <h2>建立新展厅</h2>
+    <p class="sub">选一个系列，或者写下你自己的分类</p>
+    <div class="chips">${PRESETS.map(p=>`<button class="chip" data-p="${p}" ${have.has(p)?'disabled':''}>${p}</button>`).join('')}</div>
+    <label class="label">自定义名称</label>
+    <input class="field" id="inSeries" maxlength="12" placeholder="例如 AJ4 或 联名" autocomplete="off">
+    <button class="btn" id="okSeries" disabled>建立展厅</button>`, b => {
+    const inp=b.querySelector('#inSeries'), ok=b.querySelector('#okSeries');
+    const sync=()=>{ const v=inp.value.trim(); ok.disabled=!v; b.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.p===v)); };
+    b.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ inp.value=c.dataset.p; sync(); });
+    inp.oninput=sync;
+    inp.onkeydown=e=>{ if(e.key==='Enter' && !ok.disabled) ok.click(); };
+    ok.onclick=()=>{
+      const v=inp.value.trim(); if(!v) return;
+      const ex=Store.s.series.find(s=>s.name.toUpperCase()===v.toUpperCase());
+      if(ex){ Store.s.current=ex.id; save(); closeSheet(); render(); toast(`${ex.name} 展厅已经在了`); return; }
+      const id=uid();
+      if(commit(()=>{ Store.s.series.push({id,name:v}); Store.s.current=id; })){ closeSheet(); render(); toast(`${v} 展厅已建立`); }
+    };
+  });
+}
+
+/* 2. 留白 */
+function addShoeSheet(){
+  const c=cur();
+  openSheet(`
+    <h2>录入新鞋</h2>
+    <p class="sub">先在 ${esc(c.name)} 展厅留一个位置，等它真正到你身边，再把它点亮</p>
+    ${(COLORWAYS[c.name.toUpperCase()]||[]).length?`<label class="label">经典配色</label><div class="chips" style="margin-top:0">${COLORWAYS[c.name.toUpperCase()].map(k=>{const full=`${c.name} ${k}`;return `<button class="chip" data-p="${esc(full)}">${esc(k)}</button>`;}).join('')}</div>`:''}
+    <label class="label">自定义配色</label>
+    <input class="field" id="inShoe" maxlength="60" placeholder="例如 ${esc(c.name)} + 官方配色名" value="${esc(c.name)} " autocomplete="off">
+    <button class="btn" id="okShoe">留白入柜</button>`, b=>{
+    const inp=b.querySelector('#inShoe'), ok=b.querySelector('#okShoe');
+    const sync=()=>{ ok.disabled=!inp.value.trim() || inp.value.trim()===c.name; b.querySelectorAll('.chip').forEach(z=>z.classList.toggle('on',z.dataset.p===inp.value.trim())); };
+    b.querySelectorAll('.chip').forEach(z=>z.onclick=()=>{ inp.value=z.dataset.p; sync(); });
+    sync(); inp.oninput=sync;
+    inp.onkeydown=e=>{ if(e.key==='Enter' && !ok.disabled) ok.click(); };
+    ok.onclick=()=>{
+      const v=inp.value.trim(); if(!v) return;
+      if(commit(()=>Store.s.shoes.push({id:uid(),seriesId:c.id,name:v,lit:false,createdAt:Date.now()}))){ closeSheet(); render(); toast('已留白，等你来点亮'); }
+    };
+  });
+}
+
+/* 3. 仪式感点亮：扫描 */
+let scanTarget=null, scanTimers=[];
+const LOG = [
+  '初始化视觉模型 ......... 完成',
+  '载入 Air Jordan 档案库 .. 完成',
+  '解析鞋型轮廓 ............ 完成',
+  '定位中底与气垫结构 ...... 完成',
+  '提取鞋面配色特征 ........ 完成',
+  '比对历代鞋款 ............ 完成',
+];
+function startScan(id){
+  const x=shoe(id); if(!x) return;
+  scanTarget=id; $('#toast').classList.remove('on');
+  scanTimers.forEach(clearTimeout); scanTimers=[];
+  const sc=$('#scan'), fr=$('#frame'), log=$('#log'), res=$('#result');
+  $('#scanId').textContent='#'+id.slice(-4).toUpperCase();
+  $('#resName').textContent=x.name;
+  { const o=offImg(x.name); fr.querySelector('.tgt').innerHTML=o?`<img src="${o}" alt="">`:'<svg><use href="#leaper"/></svg>'; }
+  log.innerHTML=''; res.classList.remove('on');
+  fr.classList.remove('run','done'); void fr.offsetWidth;
+  // feature points
+  const P=[[30,30],[62,22],[48,44],[36,58],[58,64],[24,72],[70,40],[44,78]];
+  $('#pts').innerHTML=P.map(p=>`<span style="left:${p[0]}%;top:${p[1]}%"></span>`).join('');
+  const pts=[...document.querySelectorAll('#pts span')];
+  sc.classList.add('on');
+  fr.classList.add('run');
+  const T=2000, t0=performance.now();
+  const bar=$('#progBar'), pt=$('#progTxt');
+  const tick=now=>{
+    const k=Math.min(1,(now-t0)/T);
+    bar.style.width=(k*100)+'%'; pt.textContent=String(Math.floor(k*100)).padStart(3,'0')+'%';
+    if(k<1 && sc.classList.contains('on') && scanTarget===id) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+  LOG.forEach((l,i)=>scanTimers.push(setTimeout(()=>{
+    const d=document.createElement('div'); d.textContent='> '+l; log.appendChild(d);
+    while(log.children.length>6) log.removeChild(log.firstChild);
+  }, 80+i*300)));
+  pts.forEach((p,i)=>scanTimers.push(setTimeout(()=>p.classList.add('on'), 200+i*200)));
+  scanTimers.push(setTimeout(()=>{
+    const d=document.createElement('div'); d.className='ok'; d.textContent=`> 匹配成功：${x.name}　置信度 99.7%`; log.appendChild(d);
+    while(log.children.length>6) log.removeChild(log.firstChild);
+    fr.classList.remove('run'); fr.classList.add('done'); res.classList.add('on');
+  }, T));
+}
+function closeScan(){ scanTimers.forEach(clearTimeout); $('#scan').classList.remove('on'); setTimeout(()=>$('#result').classList.remove('on'),300); }
+$('#btnScanCancel').onclick=()=>{ closeScan(); scanTarget=null; };
+$('#btnUpload').onclick=()=>{ closeScan(); memorySheet({mode:'light', id:scanTarget}); };
+
+/* photo compression */
+let photoMode='light', editDraft=null;
+function compress(file, max=800, q=0.82){
+  return new Promise((res,rej)=>{
+    const url=URL.createObjectURL(file); const img=new Image();
+    img.onload=()=>{
+      let w=img.naturalWidth, h=img.naturalHeight; const r=Math.min(1,max/Math.max(w,h));
+      w=Math.round(w*r); h=Math.round(h*r);
+      const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+      const cx=cv.getContext('2d'); cx.fillStyle='#000'; cx.fillRect(0,0,w,h); cx.drawImage(img,0,0,w,h);
+      URL.revokeObjectURL(url); res(cv.toDataURL('image/jpeg',q));
+    };
+    img.onerror=()=>{ URL.revokeObjectURL(url); rej(new Error('bad')); };
+    img.src=url;
+  });
+}
+$('#filePhoto').onchange=async e=>{
+  const f=e.target.files && e.target.files[0]; if(!f) return;
+  let data;
+  try{ data=await compress(f); }catch(err){ toast('这张照片读不出来，换一张试试'); return; }
+  if(editDraft){ editDraft.photo=data; editDraft.refresh && editDraft.refresh(); }
+};
+
+/* 4. 刻录回忆 */
+function memorySheet(opt){
+  const x=shoe(opt.id); if(!x) return;
+  const isEdit=opt.mode==='edit';
+  editDraft={photo:opt.photo || Store.photo(x) || null};
+  const plus='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+  openSheet(`
+    <h2>${isEdit?'编辑回忆':'刻录回忆'}</h2>
+    <p class="sub">${esc(x.name)}${isEdit?'':' · 三步完成点亮'}</p>
+    ${isEdit?`<label class="label">配色名称</label><input class="field" id="inName" maxlength="60" value="${esc(x.name)}">`:''}
+    <label class="label"><span class="stepn">01</span>实拍图</label>
+    <div class="mod" style="margin-top:0"><button class="pick" id="pick"></button><div class="txt"><b id="pickT"></b><span>相册或拍照，会自动压缩保存在本机</span></div></div>
+    <label class="label"><span class="stepn">02</span>入柜日期</label>
+    <input class="field mono" type="date" id="inDate" value="${esc(x.date||'')}" max="${todayISO()}">
+    <label class="label"><span class="stepn">03</span>回忆碎片</label>
+    <textarea class="field" id="inMem" maxlength="300" placeholder="它是怎么来到你身边的？那天的心情是什么样的">${esc(x.memory||'')}</textarea>
+    <div class="count" id="memCount">0 / 300</div>
+    <button class="btn" id="okMem" style="margin-top:14px">${isEdit?'保存':'点亮'}</button>`, b=>{
+    const mem=b.querySelector('#inMem'), cnt=b.querySelector('#memCount'), dt=b.querySelector('#inDate'), ok=b.querySelector('#okMem'), pick=b.querySelector('#pick');
+    const sync=()=>{ cnt.textContent=`${mem.value.length} / 300`; ok.disabled=!(editDraft.photo && dt.value && mem.value.trim()); };
+    editDraft.refresh=()=>{ pick.innerHTML=editDraft.photo?`<img src="${editDraft.photo}" alt="">`:plus; pick.style.borderStyle=editDraft.photo?'solid':'dashed'; b.querySelector('#pickT').textContent=editDraft.photo?'更换照片':'选择实拍图'; sync(); };
+    editDraft.refresh();
+    mem.oninput=sync; dt.oninput=dt.onchange=sync;
+    pick.onclick=()=>{ $('#filePhoto').value=''; $('#filePhoto').click(); };
+    ok.onclick=()=>{
+      const date=dt.value, memory=mem.value.trim();
+      if(!editDraft.photo||!date||!memory) return;
+      const nm=isEdit ? (b.querySelector('#inName').value.trim() || x.name) : x.name;
+      const okc=commit(()=>{ Object.assign(x,{lit:true,photo:editDraft.photo,date,memory,name:nm}); if(!isEdit) x.litAt=Date.now(); });
+      if(!okc) return;
+      closeSheet();
+      if(isEdit){ render(); openDetail(x.id,true); toast('已保存'); }
+      else{ justLit=x.id; setTimeout(()=>{ render(); toast(`已点亮 · ${x.name}`); },180); }
+    };
+  });
+}
+
+/* detail */
+let detailId=null;
+function openDetail(id, stay){
+  const x=shoe(id); if(!x) return; detailId=id;
+  const s=Store.s.series.find(z=>z.id===x.seriesId);
+  const days=daysSince(x.date);
+  $('#dwrap').innerHTML=`
+    <div class="dtop">
+      <button class="icon-btn" id="dBack" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15,5 8,12 15,19"/></svg></button>
+      <span class="crumb">${esc(s?s.name:'')} 展厅 · #${x.id.slice(-4).toUpperCase()}</span>
+      <span style="width:36px"></span>
+    </div>
+    <div class="dphoto ${x.sailed?'sailed':''}" id="dPhoto"><img src="${Store.photo(x)}" alt=""><div class="stamp">${stampSvg()}</div>
+      <div class="ov"><div class="dname">${esc(x.name)}</div><div class="dmeta" id="dMeta"></div></div></div>
+    <div class="dbody">
+      <div class="dsec" style="margin-top:6px"><div class="label">回忆碎片</div><div class="memory">${esc(x.memory||'')}</div></div>
+      <div class="dsec"><div class="label">状态</div>
+        <div class="seg ${x.sailed?'r':''}" id="seg"><i></i><button data-v="0" class="${x.sailed?'':'on'}">陪伴中</button><button data-v="1" class="${x.sailed?'on':''}">已远航</button></div>
+        <p class="seg-note" id="segNote"></p>
+      </div>
+      <div class="dact"><button id="dEdit">编辑</button><button id="dDel">删除</button></div>
+    </div>`;
+  const meta=()=>{
+    const y=shoe(id);
+    $('#dMeta').innerHTML=`<span>入柜 <b>${fmt(y.date)}</b></span>`+(y.sailed?`<span>远航 <b>${fmt(y.sailedDate)}</b></span><span>相伴 <b>${y.sailedDate?Math.max(1,daysSince(y.date)-daysSince(y.sailedDate)+1):days}</b> 天</span>`:`<span>相伴第 <b>${daysSince(y.date)}</b> 天</span>`);
+    $('#segNote').textContent=y.sailed?'它已经去了远方，日期和回忆会一直留在这里':'如果有一天它离开了，把状态改成已远航，回忆不会丢';
+  };
+  meta();
+  $('#dBack').onclick=closeDetail;
+  $('#seg').querySelectorAll('button').forEach(bt=>bt.onclick=()=>{
+    const v=bt.dataset.v==='1'; const y=shoe(id); if(!!y.sailed===v) return;
+    if(!commit(()=>{ y.sailed=v; y.sailedDate=v?todayISO():null; })) return;
+    $('#seg').classList.toggle('r',v);
+    $('#seg').querySelectorAll('button').forEach(z=>z.classList.toggle('on',z.dataset.v===(v?'1':'0')));
+    $('#dPhoto').classList.toggle('sailed',v); meta(); render();
+    toast(v?'已远航，回忆已永久封存':'欢迎回来');
+  });
+  $('#dEdit').onclick=()=>memorySheet({mode:'edit',id});
+  $('#dDel').onclick=async()=>{
+    if(await confirmDlg('删除这双鞋？','删除后照片、日期和回忆都会被清除，无法找回','删除')){
+      commit(()=>{ Store.s.shoes=Store.s.shoes.filter(z=>z.id!==id); }); closeDetail(); render(); toast('已删除');
+    }
+  };
+  if(!stay) $('#detail').scrollTop=0;
+  $('#detail').classList.add('on');
+}
+function closeDetail(){ $('#detail').classList.remove('on'); detailId=null; }
+
+/* settings */
+function bytes(){ const n=Store.bytes(); return n>1048576?(n/1048576).toFixed(1)+' MB':Math.ceil(n/1024)+' KB'; }
+function cloudRow(){
+  if(!Cloud.enabled) return `<button id="mCloud">登录与云同步<span>未接入</span></button>`;
+  if(!Cloud.user) return `<button id="mCloud">登录与云同步<span>未登录</span></button>`;
+  const st={syncing:'同步中',idle:'已同步',error:'同步失败',offline:'离线'}[Cloud.status]||'';
+  const dot=Cloud.status==='idle'?'ok':Cloud.status==='syncing'?'busy':'';
+  return `<button id="mCloud">云同步<span><i class="sync-dot ${dot}"></i>${st}</span></button>`;
+}
+function cloudNote(){
+  return Cloud.user ? `已登录 ${esc(Cloud.user.email||'')}，改动会自动同步到云端` : '';
+}
+function bindCloud(b){
+  b.querySelector('#mCloud').onclick=()=>{
+    if(!Cloud.user){ closeSheet(); Auth.show(1); return; }
+    openSheet(`<h2>云同步</h2><p class="sub">${cloudNote()}${Cloud.lastAt?`<br>上次同步 ${new Date(Cloud.lastAt).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})}`:''}</p>
+      <div class="menu"><button id="mSync">立即同步<span>${{syncing:'同步中',idle:'已同步',error:'上次失败',offline:'离线'}[Cloud.status]||''}</span></button><button id="mOut" class="warn">退出登录<span>本机数据保留</span></button></div>`, s=>{
+      s.querySelector('#mSync').onclick=async()=>{ closeSheet(); await Cloud.sync(); toast(Cloud.status==='idle'?'已同步':'同步失败，稍后会自动重试'); };
+      s.querySelector('#mOut').onclick=async()=>{ closeSheet(); if(await confirmDlg('退出登录？','本机的鞋柜会保留，再次登录后继续同步','退出')){ await Cloud.signOut(); toast('已退出登录'); } };
+    });
+  };
+}
+function menuSheet(){
+  const c=cur();
+  if(!c){ openSheet(`<h2>设置</h2><div class="menu">${cloudRow()}<button id="mImp">导入备份<span>JSON</span></button></div><p class="note">${Cloud.user?cloudNote():'数据只保存在这台设备的浏览器里'}</p>`, b=>{ bindCloud(b); b.querySelector('#mImp').onclick=()=>{ $('#fileImport').value=''; $('#fileImport').click(); }; }); return; }
+  openSheet(`
+    <h2>设置</h2>
+    <div class="menu">
+      ${cloudRow()}
+      <button id="mRen">重命名当前展厅<span>${esc(c.name)}</span></button>
+      <button id="mExp">导出备份<span>JSON</span></button>
+      <button id="mImp">导入备份<span>覆盖当前</span></button>
+      <button id="mDel" class="warn">删除当前展厅<span>${shoesOf(c.id).length} 双</span></button>
+    </div>
+    <p class="note">${Cloud.user?`${cloudNote()}，本机缓存 ${bytes()}`:`数据只保存在这台设备的浏览器里，已用 ${bytes()}<br>换手机或清理浏览器前，记得先导出备份，或登录开启云同步`}</p>`, b=>{
+    bindCloud(b);
+    b.querySelector('#mRen').onclick=()=>renameSheet();
+    b.querySelector('#mExp').onclick=exportJSON;
+    b.querySelector('#mImp').onclick=()=>{ $('#fileImport').value=''; $('#fileImport').click(); };
+    b.querySelector('#mDel').onclick=async()=>{
+      closeSheet();
+      if(await confirmDlg(`删除 ${c.name} 展厅？`,`展厅里的 ${shoesOf(c.id).length} 双鞋和它们的回忆会一起删除`,'删除')){
+        commit(()=>{ Store.s.shoes=Store.s.shoes.filter(z=>z.seriesId!==c.id); Store.s.series=Store.s.series.filter(z=>z.id!==c.id); Store.s.current=Store.s.series[0]?Store.s.series[0].id:null; });
+        render(); toast('展厅已删除');
+      }
+    };
+  });
+}
+function renameSheet(){
+  const c=cur();
+  openSheet(`<h2>重命名展厅</h2><label class="label">展厅名称</label><input class="field" id="inRen" maxlength="12" value="${esc(c.name)}"><button class="btn" id="okRen">保存</button>`, b=>{
+    b.querySelector('#okRen').onclick=()=>{ const v=b.querySelector('#inRen').value.trim(); if(!v) return; if(commit(()=>c.name=v)){ closeSheet(); render(); } };
+  });
+}
+function exportJSON(){
+  const blob=new Blob([JSON.stringify({app:'aj-cyber-dex',exportedAt:new Date().toISOString(),data:S})],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`AJ图鉴备份-${todayISO()}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  toast('备份已导出');
+}
+$('#fileImport').onchange=async e=>{
+  const f=e.target.files && e.target.files[0]; if(!f) return;
+  try{
+    const j=JSON.parse(await f.text()); const d=j.data||j;
+    if(!Array.isArray(d.series)||!Array.isArray(d.shoes)) throw 0;
+    closeSheet();
+    if(!await confirmDlg('导入备份？',`将用备份里的 ${d.series.length} 个展厅、${d.shoes.length} 双鞋替换当前内容`,'导入')) return;
+    if(Store.replace(d)){ render(); toast('备份已导入'); } else toast('存储空间已满，先清理几张照片吧');
+  }catch(err){ toast('这个文件不是图鉴备份'); }
+};
+
+/* ---------- events ---------- */
+$('#btnAddSeries').onclick=addSeriesSheet;
+$('#btnMenu').onclick=menuSheet;
+$('#tabs').onclick=e=>{ const t=e.target.closest('.tab'); if(!t||t.dataset.sid===Store.s.current) return; Store.s.current=t.dataset.sid; save(); render(); };
+let lp=null, lpFired=false;
+$('#grid').addEventListener('pointerdown',e=>{
+  const c=e.target.closest('.card.unlit'); lpFired=false; if(!c) return;
+  lp=setTimeout(async()=>{ lpFired=true; const x=shoe(c.dataset.id);
+    if(await confirmDlg('移除这个空位？',`「${x.name}」还没有点亮，移除后可以随时再录入`,'移除')){ commit(()=>Store.s.shoes=Store.s.shoes.filter(z=>z.id!==x.id)); render(); }
+  },600);
+});
+['pointerup','pointercancel','pointerleave'].forEach(ev=>$('#grid').addEventListener(ev,()=>clearTimeout(lp)));
+$('#grid').addEventListener('contextmenu',e=>{ if(e.target.closest('.card.unlit')) e.preventDefault(); });
+$('#grid').onclick=e=>{
+  if(lpFired){ lpFired=false; return; }
+  if(e.target.closest('#btnNewShoe')) return addShoeSheet();
+  const c=e.target.closest('.card'); if(!c) return;
+  const x=shoe(c.dataset.id); if(!x) return;
+  if(x.lit) openDetail(x.id); else startScan(x.id);
+};
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape') return;
+  if($('#auth').classList.contains('on')) return Auth.hide();
+  if($('#dialog').classList.contains('on')) return $('#dlgNo').click();
+  if($('#sheet').classList.contains('on')) return closeSheet();
+  if($('#scan').classList.contains('on')) return $('#btnScanCancel').click();
+  if(detailId) closeDetail();
+});
+
+/* ---------- 登录：邮箱 + 6 位验证码 ---------- */
+const Auth = (() => {
+  const el = $('#auth');
+  let email = '', cd = 0, cdTimer = null;
+  const SKIP = 'aj-dex-skip-login';
+  function show(step){
+    el.classList.add('on');
+    el.querySelector('#auS1').hidden = step === 2;
+    el.querySelector('#auS2').hidden = step !== 2;
+    if(step === 2){ el.querySelector('#auMail').textContent = email; const c = el.querySelector('#auCode'); c.value = ''; paint(); setTimeout(() => c.focus(), 250); }
+    else setTimeout(() => el.querySelector('#auEmail').focus(), 250);
+  }
+  function hide(){ el.classList.remove('on'); }
+  function paint(){
+    const v = el.querySelector('#auCode').value;
+    el.querySelectorAll('.otp i').forEach((b,i) => { b.textContent = v[i] || ''; b.classList.toggle('cur', i === Math.min(v.length,5) && document.activeElement === el.querySelector('#auCode')); b.classList.toggle('fill', !!v[i]); });
+    el.querySelector('#auVerify').disabled = v.length !== 6;
+  }
+  function tick(){
+    const r = el.querySelector('#auResend');
+    r.disabled = cd > 0; r.textContent = cd > 0 ? `重新发送 ${cd}s` : '重新发送';
+    if(cd > 0){ cd--; cdTimer = setTimeout(tick, 1000); }
+  }
+  async function send(){
+    const inp = el.querySelector('#auEmail'), b = el.querySelector('#auSend');
+    const v = inp.value.trim();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){ toast('邮箱格式好像不对'); return; }
+    if(!Cloud.enabled){ toast('云端还没接入，按 supabase/README.md 填好地址和密钥就能用'); return; }
+    b.disabled = true; b.textContent = '发送中';
+    try{ await Cloud.sendCode(v); email = v; show(2); clearTimeout(cdTimer); cd = 60; tick(); }
+    catch(e){ toast(/rate|seconds/i.test(e.message||'') ? '发送太频繁了，稍等一会儿再试' : '验证码没发出去，检查一下网络再试'); }
+    b.disabled = false; b.textContent = '发送验证码';
+  }
+  async function verify(){
+    const code = el.querySelector('#auCode').value, b = el.querySelector('#auVerify');
+    if(code.length !== 6) return;
+    b.disabled = true; b.textContent = '验证中';
+    try{ await Cloud.verify(email, code); hide(); localStorage.removeItem(SKIP); toast('登录成功，鞋柜已同步'); }
+    catch(e){ toast('验证码不对或已过期'); el.querySelector('#auCode').value = ''; paint(); }
+    b.textContent = '登录';
+  }
+  el.querySelector('#auSend').onclick = send;
+  el.querySelector('#auEmail').onkeydown = e => { if(e.key === 'Enter') send(); };
+  const code = el.querySelector('#auCode');
+  code.oninput = () => { code.value = code.value.replace(/\D/g,'').slice(0,6); paint(); if(code.value.length === 6) verify(); };
+  code.onfocus = code.onblur = paint;
+  el.querySelector('.otp').onclick = () => code.focus();
+  el.querySelector('#auVerify').onclick = verify;
+  el.querySelector('#auResend').onclick = async () => { try{ await Cloud.sendCode(email); cd = 60; tick(); toast('新的验证码已发出'); }catch(e){ toast('发送太频繁了，稍等一会儿再试'); } };
+  el.querySelector('#auBack').onclick = () => show(1);
+  el.querySelector('#auSkip').onclick = () => { localStorage.setItem(SKIP, '1'); hide(); };
+  el.querySelector('#auClose').onclick = hide;
+  return {
+    show, hide,
+    maybeShowOnStart(){ if(Cloud.enabled && !Cloud.user && !localStorage.getItem(SKIP)) show(1); }
+  };
+})();
+
+Store.onChange(kind => { if(kind === 'local') Cloud.schedule(); else if(!$('#sheet').classList.contains('on')) render(); });
+render();
+Cloud.init().then(() => Auth.maybeShowOnStart());
+window.__dex={get state(){return Store.s;}, Store, Cloud, Auth, colorways:Object.entries(COLORWAYS)};
+})();
+</script>
+</body>
+</html>
